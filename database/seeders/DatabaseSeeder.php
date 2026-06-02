@@ -76,6 +76,31 @@ class DatabaseSeeder extends Seeder
             'published_at' => now(),
         ]);
 
+        // added my more articles for testing home
+        Article::create([
+            'title' => 'Artikel 2',
+            'summary' => 'Samenvatting 2',
+            'content' => 'Content 2',
+            'image_url' => 'https://images.unsplash.com/photo-2',
+            'original_url' => 'https://example.com/2',
+            'tone' => 'light',
+            'status' => 'active',
+            'author_id' => $admin->id,
+            'published_at' => now()->subDays(1),
+        ]);
+
+        Article::create([
+            'title' => 'Artikel 3',
+            'summary' => 'Samenvatting 3',
+            'content' => 'Content 3',
+            'image_url' => 'https://images.unsplash.com/photo-3',
+            'original_url' => 'https://example.com/3',
+            'tone' => 'light',
+            'status' => 'inactive',
+            'author_id' => $admin->id,
+            'published_at' => now()->subDays(1),
+        ]);
+
         $article->tags()->sync($tags->whereIn('name', ['Klimaat', 'Politiek'])->pluck('id'));
         $article->sources()->syncWithoutDetaching([
             $nos->id => [
