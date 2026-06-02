@@ -12,12 +12,12 @@ class ArticleController extends Controller
     {
         $articles = Article::paginate(6);
 
-        return view('articles.index', compact('articles'));
+        return response()->json($articles);
     }
 
     public function create()
     {
-        return view('articles.create');
+        return response()->json(['message' => 'Create article success']);
     }
 
     public function store(Request $request)
@@ -45,12 +45,12 @@ class ArticleController extends Controller
         $article->author_id = auth()->id();
         $article->save();
 
-        return redirect()->route('articles.index', $article->id);
+        return response()->json($article);
     }
 
     public function show(Article $article)
     {
-        return view('articles.show', compact('article'));
+        return response()->json($article);
     }
 
     public function edit(Article $article)
@@ -58,7 +58,7 @@ class ArticleController extends Controller
         if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
-        return view('articles.edit', compact('article'));
+        return response()->json(['message' => 'Update article success']);
     }
 
     public function update(Request $request, Article $article)
@@ -82,7 +82,7 @@ class ArticleController extends Controller
 
         $article->save();
 
-        return redirect()->route('articles.index');
+        return response()->json($article);
     }
 
     public function destroy(Article $article)
@@ -93,6 +93,6 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        return redirect()->route('articles.index');
+        return response()->json(['message' => 'Delete article success']);
     }
 }
