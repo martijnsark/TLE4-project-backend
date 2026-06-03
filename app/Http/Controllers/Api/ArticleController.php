@@ -8,9 +8,21 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::paginate(6);
+        $articles = Article::query()
+            ->with(['tags'])
+            ->when($request->filled('tag_id'), function ($query) use ($request) {
+                $query->whereHas('tags', function ($tagQuery) use ($request) {
+                    $tagQuery->where('tags.id', $request->tag_id);
+                });
+            })
+            ->when($request->filled('tag'), function ($query) use ($request) {
+                $query->whereHas('tags', function ($tagQuery) use ($request) {
+                    $tagQuery->where('tags.name', $request->tag);
+                });
+            })
+            ->paginate(6);
 
         return response()->json($articles);
     }
@@ -31,6 +43,9 @@ class ArticleController extends Controller
             'tone' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'published_at' => 'nullable|date',
+
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'exists:tags,id'],
         ]);
 
         $article = new Article();
@@ -45,12 +60,16 @@ class ArticleController extends Controller
         $article->author_id = auth()->id();
         $article->save();
 
-        return response()->json($article);
+        if ($request->has('tag_ids')) {
+            $article->tags()->sync($request->input('tag_ids'));
+        }
+
+        return response()->json($article->load('tags'), 201);
     }
 
     public function show(Article $article)
     {
-        return response()->json($article);
+        return response()->json($article->load('tags'));
     }
 
     public function edit(Article $article)
@@ -68,21 +87,35 @@ class ArticleController extends Controller
         }
 
         $request->validate([
-            'title' => 'required|string|max:255',
-            'summary' => 'required|string',
-            'content' => 'required|string',
-            'image_url' => 'required|url',
-            'original_url' => 'required|url',
-            'tone' => 'required|string|max:255',
-            'status' => 'required|string|max:255',
-            'published_at' => 'nullable|date',
+            'title' => ['sometimes', 'string', 'max:255'],
+            'summary' => ['sometimes', 'string'],
+            'content' => ['sometimes', 'string'],
+            'image_url' => ['sometimes', 'url'],
+            'original_url' => ['sometimes', 'url'],
+            'tone' => ['sometimes', 'in:serious,light,humorous'],
+            'status' => ['sometimes', 'in:draft,inactive,active,archived'],
+            'published_at' => ['sometimes', 'nullable', 'date'],
+
+            'tag_ids' => ['sometimes', 'array'],
+            'tag_ids.*' => ['integer', 'exists:tags,id'],
         ]);
 
-        $article->update($request->all());
+        $article->update($request->only([
+            'title',
+            'summary',
+            'content',
+            'image_url',
+            'original_url',
+            'tone',
+            'status',
+            'published_at',
+        ]));
 
-        $article->save();
+        if ($request->has('tag_ids')) {
+            $article->tags()->sync($request->input('tag_ids'));
+        }
 
-        return response()->json($article);
+        return response()->json($article->load('tags'));
     }
 
     public function destroy(Article $article)
