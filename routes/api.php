@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HomePageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\Api\CallToActionController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -29,4 +30,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('articles/{article}', [ArticleController::class, 'update']);
     Route::delete('articles/{article}', [ArticleController::class, 'destroy']);
     Route::get('articles/{article}/edit', [ArticleController::class, 'edit']);
+    Route::post('articles/{article}/cta', [CallToActionController::class, 'store']);
+    Route::patch('articles/{article}/cta', [CallToActionController::class, 'update']);
+    Route::delete('articles/{article}/cta', [CallToActionController::class, 'destroy']);
 });

@@ -35,7 +35,9 @@ class ArticleController extends Controller
 
         //$articles = Article::paginate(6);
 
-        return response()->json($articles->paginate(6));
+        return response()->json(
+            $articles->with('callToAction')->paginate(6)
+        );
     }
 
     public function create()
@@ -81,7 +83,7 @@ class ArticleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return response()->json($article);
+        return response()->json($article->load('callToAction'));
     }
 
     public function edit(Article $article)
