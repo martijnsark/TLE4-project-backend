@@ -92,6 +92,19 @@ class AuthController extends Controller
         ]);
     }
 
+    //remove article inside of "saved_articles" table (seperate per user)
+    public function removeSavedArticle(Request $request, Article $article): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->savedArticles()->detach($article->id);
+
+        return response()->json([
+            'message' => 'Article removed successfully',
+            'user' => $user->load('savedArticles'),
+        ]);
+    }
+
     public function updateAccount(Request $request): JsonResponse
     {
         $user = $request->user();
