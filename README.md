@@ -250,7 +250,7 @@ All API routes are prefixed with `/api`.
 
 Use `Authorization: Bearer <token>` for protected routes after login.
 
-### General Endpoints
+### General Endpoints (users and admins)
 
 - `POST /api/login`
     - Required fields: `email`, `password`
@@ -261,22 +261,19 @@ Use `Authorization: Bearer <token>` for protected routes after login.
     - Optional fields: none
     - Auth: required
     - Returns: a logout confirmation message
-
-
-### User endpoints
-
-- `GET /api/home`
-    - Required fields: none
-    - Optional fields: none
-    - Returns: an array of active articles ordered from newest to oldest
-
-
-### Admin endpoints
-
 - `GET /api/articles`
   - Returns: list of articles (public)
 - `GET /api/articles/{article}`
   - Returns: a single article by ID (public)
+
+
+### User endpoints (users only)
+
+
+
+
+### Admin endpoints (admins only)
+
 - `POST /api/articles`
   - Auth bearer token: required (admin)
   - Required fields: typical article fields (e.g. `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`)
@@ -284,9 +281,6 @@ Use `Authorization: Bearer <token>` for protected routes after login.
 - `PUT /api/articles/{article}`
   - Auth bearer token: required (admin)
   - Replaces an article; accepts same fields as `POST`
-- `PATCH /api/articles/{article}`
-  - Auth bearer token: required (admin)
-  - Partial update of an article
 - `DELETE /api/articles/{article}`
   - Auth bearer token: required (admin)
   - Deletes the specified article
@@ -294,13 +288,20 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Auth bearer token: required (admin)
   - Returns article data suitable for editing (admin-only)
 
-  ### backend testing
+  ### backend testing (testing for backend)
 
   - `GET /api/me`
     - Required fields: none
     - Optional fields: none
     - Auth: required
     - Returns: the authenticated `user`
+
+  ### retired routes (lost purpose)
+
+  - `GET /api/home`
+    - Required fields: none
+    - Optional fields: none
+    - Returns: an array of active articles ordered from newest to oldest
 
 ### Frontend flow
 
