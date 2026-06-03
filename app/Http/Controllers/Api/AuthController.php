@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -65,6 +66,42 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => $request->user(),
+        ]);
+    }
+
+    // account function (displays saved articles by user)
+    public function account(Request $request): JsonResponse
+    {
+        return response()->json([
+            'user' => $request->user()->load('savedArticles'),
+        ]);
+    }
+
+    // save article inside of "saved_articles" table (seperate per user)
+    public function saveArticle(Request $request, Article $article): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->savedArticles()->syncWithoutDetaching([
+            $article->id => ['saved_at' => now()],
+        ]);
+
+        return response()->json([
+            'message' => 'Article saved successfully',
+            'user' => $user->load('savedArticles'),
+        ]);
+    }
+
+    //remove article inside of "saved_articles" table (seperate per user)
+    public function removeSavedArticle(Request $request, Article $article): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->savedArticles()->detach($article->id);
+
+        return response()->json([
+            'message' => 'Article removed successfully',
+            'user' => $user->load('savedArticles'),
         ]);
     }
 
