@@ -20,6 +20,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/update-account', [AuthController::class, 'updateAccount']);
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
+    Route::get('/me/tags', [TagController::class, 'myTags']);
+    Route::put('/me/tags', [TagController::class, 'updateMyTags']);
 });
 
 Route::get('articles', [ArticleController::class, 'index']);

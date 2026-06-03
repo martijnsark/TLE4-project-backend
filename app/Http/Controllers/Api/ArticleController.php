@@ -10,33 +10,41 @@ class ArticleController extends Controller
 {
     public function index(Request $request)
     {
-        $articles = Article::query()
+        // Show all articles for admins, only active articles for everyone else
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            $articles = Article::query();
+        } else {
+            $articles = Article::where('status', 'active');
+        }
+
+        $articles = $articles
             ->with(['tags'])
+            ->latest()
+
+            // filter by tag id
             ->when($request->filled('tag_id'), function ($query) use ($request) {
                 $query->whereHas('tags', function ($tagQuery) use ($request) {
                     $tagQuery->where('tags.id', $request->tag_id);
                 });
             })
+
+            // filter by tag name
             ->when($request->filled('tag'), function ($query) use ($request) {
                 $query->whereHas('tags', function ($tagQuery) use ($request) {
                     $tagQuery->where('tags.name', $request->tag);
                 });
-            })
-            ->paginate(6);
+            });
 
-
-        //search
+        // search
         if ($request->filled('search')) {
             $search = $request->input('search');
+
             $articles->where(function ($query) use ($search) {
                 $query->where('title', 'like', '%' . $search . '%')
                     ->orWhere('summary', 'like', '%' . $search . '%')
                     ->orWhere('content', 'like', '%' . $search . '%');
             });
         }
-
-
-        //$articles = Article::paginate(6);
 
         return response()->json($articles->paginate(6));
     }
@@ -91,7 +99,7 @@ class ArticleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return response()->json($article);
+        return response()->json($article->load('tags'));
     }
 
     public function edit(Article $article)
