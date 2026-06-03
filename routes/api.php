@@ -6,12 +6,14 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HomePageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\Api\TagController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // home rout + home function (GET method)
 Route::get('/home', [HomePageController::class, 'home']);
+Route::get('/tags', [TagController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
