@@ -1,58 +1,314 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TLE4 Project Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repository contains the backend for the TLE4 project — a Laravel API-driven application providing articles, polls, memes, reactions, tags and related features.
 
-## About Laravel
+## Table of Contents
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Project Overview
+- ERD (Entity Relationship Diagram)
+- Frontend Implementation
+- Installation
+- Deployment
+- Configuration (.env)
+- Usage & Testing
+- Edge Cases & Decisions
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Project Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Impakt is a news platform that delivers news in a lighter, sometimes humorous way to help reduce pessimistic future outlooks among 18–23-year-olds in the Randstad region of the Netherlands, while still keeping them informed about important news.
 
-## Learning Laravel
+## ERD (Entity Relationship Diagram)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The following Mermaid ER diagram summarizes the main entities and relationships in the system.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```mermaid
+erDiagram
+    USERS o|--o{ ARTICLES : authors
+    USERS ||--o{ REACTIONS : makes
+    USERS ||--o{ POLL_VOTES : votes
+    USERS o|--o{ ARTICLE_VIEWS : views
+    USERS o|--o{ MEME_VIEWS : views
+    USERS ||--o{ GENERATED_CONTENTS : creates
+    USERS ||--o{ CONTENT_REVIEWS : reviews
+    USERS ||--o{ SAVED_ARTICLES : saves
+    USERS ||--o{ SAVED_MEMES : saves
+    USERS ||--o{ USER_TAGS : interests
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+    TAGS ||--o{ USER_TAGS : tagged_by
+    ARTICLES ||--o{ ARTICLE_TAGS : tagged_with
+    TAGS ||--o{ ARTICLE_TAGS : tags
+    ARTICLES ||--o{ ARTICLE_SOURCES : cites
+    SOURCES ||--o{ ARTICLE_SOURCES : referenced_by
 
-## Agentic Development
+    ARTICLES ||--o| CALL_TO_ACTIONS : has
+    ARTICLES ||--o{ REACTIONS : receives
+    ARTICLES ||--o{ POLLS : contains
+    ARTICLES o|--o{ MEMES : generates
+    ARTICLES ||--o{ ARTICLE_VIEWS : viewed_in
+    ARTICLES ||--o{ SAVED_ARTICLES : saved_in
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+    MEMES ||--o{ MEME_VIEWS : viewed_in
+    MEMES ||--o{ SAVED_MEMES : saved_in
 
-```bash
-composer require laravel/boost --dev
+    POLLS ||--o{ POLL_OPTIONS : options
+    POLLS ||--o{ POLL_VOTES : receives
+    POLL_OPTIONS ||--o{ POLL_VOTES : selected
 
-php artisan boost:install
+    GENERATED_CONTENTS ||--o{ CONTENT_REVIEWS : reviewed_by
+
+    USERS {
+      integer id PK
+      string username
+      string name
+      string email
+      string role
+    }
+    TAGS {
+      integer id PK
+      string name
+      string category
+    }
+    ARTICLES {
+      integer id PK
+      string title
+      text summary
+      text content
+      string image_url
+      string original_url
+      string tone
+      string status
+      integer author_id FK
+      datetime published_at
+    }
+    CALL_TO_ACTIONS {
+      integer id PK
+      integer article_id FK
+      string title
+      text context_text
+      text goal_text
+      string target_url
+    }
+    SOURCES {
+      integer id PK
+      string name
+      string url
+      decimal reliability_score
+    }
+    ARTICLE_TAGS {
+      integer article_id FK
+      integer tag_id FK
+    }
+    ARTICLE_SOURCES {
+      integer article_id FK
+      integer source_id FK
+      string source_url
+      boolean is_primary
+    }
+    SAVED_ARTICLES {
+      integer user_id FK
+      integer article_id FK
+      datetime saved_at
+    }
+    REACTIONS {
+      integer id PK
+      integer user_id FK
+      integer article_id FK
+      string reaction
+    }
+    POLLS {
+      integer id PK
+      integer article_id FK
+      string question
+    }
+    POLL_OPTIONS {
+      integer id PK
+      integer poll_id FK
+      string option_text
+    }
+    POLL_VOTES {
+      integer id PK
+      integer poll_id FK
+      integer option_id FK
+      integer user_id FK
+      datetime voted_at
+    }
+    MEMES {
+      integer id PK
+      integer article_id FK
+      string title
+      string image_url
+      string caption
+    }
+    SAVED_MEMES {
+      integer user_id FK
+      integer meme_id FK
+      datetime saved_at
+    }
+    ARTICLE_VIEWS {
+      integer id PK
+      integer user_id FK
+      integer article_id FK
+      datetime viewed_at
+      integer reading_time_seconds
+    }
+    MEME_VIEWS {
+      integer id PK
+      integer user_id FK
+      integer meme_id FK
+      datetime viewed_at
+      integer viewing_time_seconds
+    }
+    GENERATED_CONTENTS {
+      integer id PK
+      integer admin_id FK
+      string title
+      text generated_text
+      string original_news_url
+      string status
+    }
+    CONTENT_REVIEWS {
+      integer id PK
+      integer generated_content_id FK
+      integer admin_id FK
+      text feedback
+      boolean approved
+      datetime reviewed_at
+    }
+    USER_TAGS {
+      integer user_id FK
+      integer tag_id FK
+    }
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Frontend Implementation
 
-## Contributing
+All API routes are prefixed with `/api`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Use `Authorization: Bearer <token>` for protected routes after login.
 
-## Code of Conduct
+### Routes and fields
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- `POST /api/login`
+    - Required fields: `email`, `password`
+    - Optional fields: none in the current API controller
+    - Returns: `message`, `user`, and `token`
+- `GET /api/home`
+    - Required fields: none
+    - Optional fields: none
+    - Returns: an array of active articles ordered from newest to oldest
+- `GET /api/me`
+    - Required fields: none
+    - Optional fields: none
+    - Auth: required
+    - Returns: the authenticated `user`
+- `POST /api/logout`
+    - Required fields: none
+    - Optional fields: none
+    - Auth: required
+    - Returns: a logout confirmation message
 
-## Security Vulnerabilities
+### Frontend flow
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Submit `email` and `password` from the login form.
+- Store the returned token securely and send it on protected requests.
+- Load the home feed from `/api/home` on first render.
+- Use `/api/me` to hydrate the current session after refresh.
+- Call `/api/logout` to revoke the current token and clear the local session.
 
-## License
+### Article response shape
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The `/api/home` endpoint returns `Article` records with fields such as:
+
+- `id`
+- `title`
+- `summary`
+- `content`
+- `image_url`
+- `original_url`
+- `tone`
+- `status`
+- `author_id`
+- `published_at`
+- `created_at`
+- `updated_at`
+
+## Installation
+
+Prerequisites:
+
+- PHP 8.1+ (match composer.json)
+- Composer
+- MySQL or Postgres
+- Redis (recommended for queues)
+- Node.js & npm (if front-end assets are built here)
+
+Quick local setup:
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+# configure DB settings in .env
+php artisan migrate --seed
+php artisan storage:link
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+For queue workers (local dev):
+
+```bash
+php artisan queue:work --tries=3
+```
+
+## Deployment
+
+General recommendations for production deployment:
+
+- Use a process manager (Supervisor) to run `php artisan queue:work` and `php artisan horizon` if enabled.
+- Serve the app behind Nginx with PHP-FPM. Example Nginx location root: `public/`.
+- Use environment variables (secure `.env`) and do not commit secrets.
+- Run `php artisan migrate --force` as part of deploy.
+- Use `php artisan config:cache`, `route:cache`, and `view:cache` for performance.
+- Set up scheduled tasks (`php artisan schedule:run`) via cron.
+
+An example minimal supervisor config for queue workers:
+
+```ini
+[program:tle4-queue]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/app/artisan queue:work --sleep=3 --tries=3
+autostart=true
+autorestart=true
+user=www-data
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/laravel-queue.log
+```
+
+## Configuration (.env)
+
+Important variables:
+
+- `APP_ENV`, `APP_DEBUG`, `APP_URL`
+- `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `CACHE_DRIVER`, `QUEUE_CONNECTION`, `SESSION_DRIVER`, `SESSION_LIFETIME`
+- `MAIL_MAILER` and mail provider credentials
+- `SANCTUM_STATEFUL_DOMAINS` / `SESSION_DOMAIN` if using Sanctum for SPA auth
+
+## Usage & Testing
+
+- API routes live under `routes/api.php`.
+- Use Postman or HTTP client to exercise endpoints; authentication uses Laravel Sanctum tokens.
+- Run automated tests:
+
+```bash
+composer test
+# or
+./vendor/bin/pest
+```
+
+## Edge Cases 
+
+
+
+
