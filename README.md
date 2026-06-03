@@ -180,32 +180,63 @@ erDiagram
     }
 ```
 
-## Frontend Implementation
+## Frontend Implementation (Routes and fields)
 
 All API routes are prefixed with `/api`.
 
 Use `Authorization: Bearer <token>` for protected routes after login.
 
-### Routes and fields
+### General Endpoints
 
 - `POST /api/login`
     - Required fields: `email`, `password`
     - Optional fields: none in the current API controller
     - Returns: `message`, `user`, and `token`
-- `GET /api/home`
-    - Required fields: none
-    - Optional fields: none
-    - Returns: an array of active articles ordered from newest to oldest
-- `GET /api/me`
-    - Required fields: none
-    - Optional fields: none
-    - Auth: required
-    - Returns: the authenticated `user`
 - `POST /api/logout`
     - Required fields: none
     - Optional fields: none
     - Auth: required
     - Returns: a logout confirmation message
+
+
+### User endpoints
+
+- `GET /api/home`
+    - Required fields: none
+    - Optional fields: none
+    - Returns: an array of active articles ordered from newest to oldest
+
+
+### Admin endpoints
+
+- `GET /api/articles`
+  - Returns: list of articles (public)
+- `GET /api/articles/{article}`
+  - Returns: a single article by ID (public)
+- `POST /api/articles`
+  - Auth: required (admin)
+  - Required fields: typical article fields (e.g. `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`)
+  - Returns: the created `Article`
+- `PUT /api/articles/{article}`
+  - Auth: required (admin)
+  - Replaces an article; accepts same fields as `POST`
+- `PATCH /api/articles/{article}`
+  - Auth: required (admin)
+  - Partial update of an article
+- `DELETE /api/articles/{article}`
+  - Auth: required (admin)
+  - Deletes the specified article
+- `GET /api/articles/{article}/edit`
+  - Auth: required (admin)
+  - Returns article data suitable for editing (admin-only)
+
+  ### backend testing
+
+  - `GET /api/me`
+    - Required fields: none
+    - Optional fields: none
+    - Auth: required
+    - Returns: the authenticated `user`
 
 ### Frontend flow
 
