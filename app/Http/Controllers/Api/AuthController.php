@@ -68,6 +68,14 @@ class AuthController extends Controller
         ]);
     }
 
+    // account route (displays saved articles by user)
+    public function account(Request $request): JsonResponse
+    {
+        return response()->json([
+            'user' => $request->user()->load('savedArticles'),
+        ]);
+    }
+
     public function updateAccount(Request $request): JsonResponse
     {
         $user = $request->user();
