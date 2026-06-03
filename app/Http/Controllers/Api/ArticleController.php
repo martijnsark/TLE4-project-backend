@@ -10,11 +10,16 @@ class ArticleController extends Controller
 {
     public function index(Request $request)
     {
-        //$articles = Article::query();
+        // $articles = Article::query();
 
-        // show latest & active articles
-        $articles = Article::where('status', 'active')
-            ->latest();
+        // just show active for every one
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            $articles = Article::query();
+        } else {
+            $articles = Article::where('status', 'active');
+        }
+// show the most recent article
+        $articles = $articles->latest();
 
 
         //search
@@ -68,6 +73,14 @@ class ArticleController extends Controller
 
     public function show(Article $article)
     {
+        // just show active for every one
+        if (
+            (!auth()->check() || auth()->user()->role !== 'admin')
+            && $article->status !== 'active'
+        ) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return response()->json($article);
     }
 
