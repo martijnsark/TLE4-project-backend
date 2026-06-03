@@ -8,11 +8,29 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::paginate(6);
+        //$articles = Article::query();
 
-        return response()->json($articles);
+        // show latest & active articles
+        $articles = Article::where('status', 'active')
+            ->latest();
+
+
+        //search
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $articles->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('summary', 'like', '%' . $search . '%')
+                    ->orWhere('content', 'like', '%' . $search . '%');
+            });
+        }
+
+
+        //$articles = Article::paginate(6);
+
+        return response()->json($articles->paginate(6));
     }
 
     public function create()
