@@ -61,12 +61,19 @@ erDiagram
       string username
       string name
       string email
+      string password
+      datetime email_verified_at
       string role
+      string remember_token
+      datetime created_at
+      datetime updated_at
     }
     TAGS {
       integer id PK
       string name
       string category
+      datetime created_at
+      datetime updated_at
     }
     ARTICLES {
       integer id PK
@@ -79,6 +86,8 @@ erDiagram
       string status
       integer author_id FK
       datetime published_at
+      datetime created_at
+      datetime updated_at
     }
     CALL_TO_ACTIONS {
       integer id PK
@@ -87,43 +96,62 @@ erDiagram
       text context_text
       text goal_text
       string target_url
+      datetime created_at
+      datetime updated_at
     }
     SOURCES {
       integer id PK
       string name
       string url
-      decimal reliability_score
+      integer reliability_score
+      datetime created_at
+      datetime updated_at
     }
     ARTICLE_TAGS {
+      integer id PK
       integer article_id FK
       integer tag_id FK
+      datetime created_at
+      datetime updated_at
     }
     ARTICLE_SOURCES {
+      integer id PK
       integer article_id FK
       integer source_id FK
       string source_url
       boolean is_primary
+      datetime created_at
+      datetime updated_at
     }
     SAVED_ARTICLES {
+      integer id PK
       integer user_id FK
       integer article_id FK
       datetime saved_at
+      datetime created_at
+      datetime updated_at
     }
     REACTIONS {
       integer id PK
       integer user_id FK
       integer article_id FK
       string reaction
+      datetime created_at
+      datetime updated_at
     }
     POLLS {
       integer id PK
       integer article_id FK
       string question
+      datetime created_at
+      datetime updated_at
     }
     POLL_OPTIONS {
       integer id PK
       integer poll_id FK
       string option_text
+      datetime created_at
+      datetime updated_at
     }
     POLL_VOTES {
       integer id PK
@@ -137,12 +165,17 @@ erDiagram
       integer article_id FK
       string title
       string image_url
-      string caption
+      text caption
+      datetime created_at
+      datetime updated_at
     }
     SAVED_MEMES {
+      integer id PK
       integer user_id FK
       integer meme_id FK
       datetime saved_at
+      datetime created_at
+      datetime updated_at
     }
     ARTICLE_VIEWS {
       integer id PK
@@ -165,6 +198,8 @@ erDiagram
       text generated_text
       string original_news_url
       string status
+      datetime created_at
+      datetime updated_at
     }
     CONTENT_REVIEWS {
       integer id PK
@@ -173,10 +208,39 @@ erDiagram
       text feedback
       boolean approved
       datetime reviewed_at
+      datetime created_at
+      datetime updated_at
     }
     USER_TAGS {
+      integer id PK
       integer user_id FK
       integer tag_id FK
+      datetime created_at
+      datetime updated_at
+    }
+
+    SESSIONS {
+      string id PK
+      integer user_id FK
+      string ip_address
+      text payload
+      integer last_activity
+    }
+
+    PASSWORD_RESET_TOKENS {
+      string email PK
+      string token
+      datetime created_at
+    }
+
+    PERSONAL_ACCESS_TOKENS {
+      integer id PK
+      integer tokenable_id
+      string tokenable_type
+      string name
+      string token
+      datetime created_at
+      datetime updated_at
     }
 ```
 
@@ -214,20 +278,20 @@ Use `Authorization: Bearer <token>` for protected routes after login.
 - `GET /api/articles/{article}`
   - Returns: a single article by ID (public)
 - `POST /api/articles`
-  - Auth: required (admin)
+  - Auth bearer token: required (admin)
   - Required fields: typical article fields (e.g. `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`)
   - Returns: the created `Article`
 - `PUT /api/articles/{article}`
-  - Auth: required (admin)
+  - Auth bearer token: required (admin)
   - Replaces an article; accepts same fields as `POST`
 - `PATCH /api/articles/{article}`
-  - Auth: required (admin)
+  - Auth bearer token: required (admin)
   - Partial update of an article
 - `DELETE /api/articles/{article}`
-  - Auth: required (admin)
+  - Auth bearer token: required (admin)
   - Deletes the specified article
 - `GET /api/articles/{article}/edit`
-  - Auth: required (admin)
+  - Auth bearer token: required (admin)
   - Returns article data suitable for editing (admin-only)
 
   ### backend testing
