@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\HomePageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
 
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // home rout + home function (GET method)
@@ -15,6 +16,8 @@ Route::get('/home', [HomePageController::class, 'home']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/update-account', [AuthController::class, 'updateAccount']);
+    Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
 });
 
 Route::get('articles', [ArticleController::class, 'index']);
