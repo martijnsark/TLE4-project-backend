@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 class TagController extends Controller
 {
     public function index(): JsonResponse
+    //alle tags ophalen
     {
         $tags = Tag::orderBy('category')
             ->orderBy('name')
@@ -19,6 +20,7 @@ class TagController extends Controller
     }
 
     public function myTags(Request $request): JsonResponse
+    //tags ophalen die de gebruiker heeft geselecteerd als interesse tags, gesorteerd op categorie en naam
     {
         $tags = $request->user()
             ->interestTags()
@@ -30,6 +32,7 @@ class TagController extends Controller
     }
 
     public function updateMyTags(Request $request): JsonResponse
+    //tags updaten die de gebruiker heeft geselecteerd als interesse tags, gesorteerd op categorie en naam
     {
         $validated = $request->validate([
             'tag_ids' => ['required', 'array'],

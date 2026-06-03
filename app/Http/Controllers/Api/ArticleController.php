@@ -10,7 +10,6 @@ class ArticleController extends Controller
 {
     public function index(Request $request)
     {
-        // Show all articles for admins, only active articles for everyone else
         if (auth()->check() && auth()->user()->role === 'admin') {
             $articles = Article::query();
         } else {
@@ -18,24 +17,19 @@ class ArticleController extends Controller
         }
 
         $articles = $articles
-            ->with(['tags'])
+            ->with(['tags', 'callToAction'])
             ->latest()
-
-            // filter by tag id
             ->when($request->filled('tag_id'), function ($query) use ($request) {
                 $query->whereHas('tags', function ($tagQuery) use ($request) {
                     $tagQuery->where('tags.id', $request->tag_id);
                 });
             })
-
-            // filter by tag name
             ->when($request->filled('tag'), function ($query) use ($request) {
                 $query->whereHas('tags', function ($tagQuery) use ($request) {
                     $tagQuery->where('tags.name', $request->tag);
                 });
             });
 
-        // search
         if ($request->filled('search')) {
             $search = $request->input('search');
 
@@ -86,7 +80,7 @@ class ArticleController extends Controller
             $article->tags()->sync($request->input('tag_ids'));
         }
 
-        return response()->json($article->load('tags'), 201);
+        return response()->json($article->load(['tags', 'callToAction']), 201);
     }
 
     public function show(Article $article)
@@ -99,7 +93,7 @@ class ArticleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return response()->json($article->load('tags'));
+        return response()->json($article->load('callToAction', 'tags'));
     }
 
     public function edit(Article $article)
@@ -145,7 +139,7 @@ class ArticleController extends Controller
             $article->tags()->sync($request->input('tag_ids'));
         }
 
-        return response()->json($article->load('tags'));
+        return response()->json($article->load(['tags', 'callToAction']));
     }
 
     public function destroy(Article $article)
