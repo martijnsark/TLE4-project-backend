@@ -252,6 +252,10 @@ Use `Authorization: Bearer <token>` for protected routes after login.
 
 ### General Endpoints (users and admins)
 
+- `POST /api/register`
+  - Required fields: account details required by the registration form, including at least `email` and `password`
+  - Optional fields: any additional profile fields accepted by the registration controller
+  - Returns: the created `user` and any auth payload returned by the API
 - `POST /api/login`
     - Required fields: `email`, `password`
     - Optional fields: none in the current API controller
@@ -261,6 +265,16 @@ Use `Authorization: Bearer <token>` for protected routes after login.
     - Optional fields: none
     - Auth: required
     - Returns: a logout confirmation message
+- `PUT /api/update-account`
+  - Required fields: account fields accepted by the update controller
+  - Optional fields: any editable profile fields supported by the API
+  - Auth: required
+  - Returns: the updated `user`
+- `DELETE /api/delete-account`
+  - Required fields: none
+  - Optional fields: none
+  - Auth: required
+  - Returns: a confirmation message or deleted account response from the API
 - `GET /api/articles`
   - Returns: list of articles (public)
 - `GET /api/articles/{article}`
