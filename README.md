@@ -277,6 +277,7 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Returns: a confirmation message or deleted account response from the API
 - `GET /api/articles`
   - Returns: list of articles (public)
+  - Optional query: `?search=example` — filter articles by `title`, `summary`, or `content` (paginated results)
 - `GET /api/articles/{article}`
   - Returns: a single article by ID (public)
 

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 class CallToActionController extends Controller
 {
     public function store(Request $request, Article $article): JsonResponse
+    //maak hier een cta aan voor een artikel, maar alleen als er nog geen cta is, anders return een error(max 1 cta per artikel)
     {
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -38,6 +39,7 @@ class CallToActionController extends Controller
     }
 
     public function update(Request $request, Article $article): JsonResponse
+    //update een cta voor een artikel, maar alleen als er al een cta is, anders return een error(kan geen cta updaten als er nog geen cta is)
     {
         $callToAction = $article->callToAction;
 
@@ -68,6 +70,7 @@ class CallToActionController extends Controller
     }
 
     public function destroy(Article $article): JsonResponse
+    //verwijderd een cta voor een artikel, maar alleen als er al een cta is, anders return een error(kan geen cta verwijderen als er nog geen cta is)
     {
         $callToAction = $article->callToAction;
 
