@@ -7,12 +7,38 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
+    public function register(Request $request): JsonResponse
+    {
+        $request->validate([
+            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'username' => $request->username,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+            'role' => 'user',
+        ]);
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Account created successfully',
+            'user' => $user,
+            'token' => $token,
+        ], 201);
+    }
+
     public function login(Request $request): JsonResponse
     {
-//        dd('!!');
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
@@ -39,6 +65,56 @@ class AuthController extends Controller
     {
         return response()->json([
             'user' => $request->user(),
+        ]);
+    }
+
+    public function updateAccount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'username' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'username')->ignore($user->id),
+            ],
+            'name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email' => [
+                'sometimes',
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+            'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $data = $request->only([
+            'username',
+            'name',
+            'email',
+            'password',
+        ]);
+
+        $user->update($data);
+
+        return response()->json([
+            'message' => 'Account updated successfully',
+            'user' => $user->fresh(),
+        ]);
+    }
+
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Account deleted successfully',
         ]);
     }
 
