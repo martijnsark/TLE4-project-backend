@@ -8,11 +8,34 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $articles = Article::paginate(6);
+        // $articles = Article::query();
 
-        return response()->json($articles);
+        // just show active for every one
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            $articles = Article::query();
+        } else {
+            $articles = Article::where('status', 'active');
+        }
+// show the most recent article
+        $articles = $articles->latest();
+
+
+        //search
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $articles->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('summary', 'like', '%' . $search . '%')
+                    ->orWhere('content', 'like', '%' . $search . '%');
+            });
+        }
+
+
+        //$articles = Article::paginate(6);
+
+        return response()->json($articles->paginate(6));
     }
 
     public function create()
@@ -50,6 +73,14 @@ class ArticleController extends Controller
 
     public function show(Article $article)
     {
+        // just show active for every one
+        if (
+            (!auth()->check() || auth()->user()->role !== 'admin')
+            && $article->status !== 'active'
+        ) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return response()->json($article);
     }
 
