@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Meme extends Model
 {
-    protected $fillable = ['article_id', 'title', 'image_url', 'caption'];
+    use HasFactory;
+
+    protected $fillable = [
+        'article_id', 'title', 'image_url', 'caption',
+        'author', 'author_name', 'top', 'bot', 'cat',
+    ];
 
     public function article(): BelongsTo
     {

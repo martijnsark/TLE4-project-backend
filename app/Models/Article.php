@@ -2,25 +2,38 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Article extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'title', 'summary', 'content', 'image_url', 'original_url',
-        'tone', 'status', 'author_id', 'published_at',
+        'tone', 'status', 'author_id', 'category_id', 'published_at',
+        'is_good_news', 'is_trending', 'body_paragraphs',
     ];
 
     protected $casts = [
-        'published_at' => 'datetime',
+        'published_at'    => 'datetime',
+        'body_paragraphs' => 'array',
+        'is_good_news'    => 'boolean',
+        'is_trending'     => 'boolean',
     ];
 
-    public function author(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function tags(): BelongsToMany
