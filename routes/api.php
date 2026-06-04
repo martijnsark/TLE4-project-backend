@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
+
 // import home controller
 use App\Http\Controllers\Api\HomePageController;
+use App\Http\Controllers\Api\PollController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
 
@@ -20,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
 });
 
+//articles
 Route::get('articles', [ArticleController::class, 'index']);
 Route::get('articles/{article}', [ArticleController::class, 'show']);
 
@@ -29,4 +32,30 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('articles/{article}', [ArticleController::class, 'update']);
     Route::delete('articles/{article}', [ArticleController::class, 'destroy']);
     Route::get('articles/{article}/edit', [ArticleController::class, 'edit']);
+});
+
+// polls for everyone
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('polls', [PollController::class, 'index']);
+    Route::get('polls/{poll}', [PollController::class, 'show']);
+    Route::get('polls/{poll}/results', [PollController::class, 'results']);
+    Route::get('poll-options', [App\Http\Controllers\Api\PollOptionController::class, 'index']);
+    Route::post('poll-votes', [App\Http\Controllers\Api\PollVoteController::class, 'store']);
+    Route::delete('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'destroy']);
+});
+
+
+// admin only
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::post('polls', [PollController::class, 'store']);
+    Route::put('polls/{poll}', [PollController::class, 'update']);
+    Route::patch('polls/{poll}', [PollController::class, 'update']);
+    Route::delete('polls/{poll}', [PollController::class, 'destroy']);
+    Route::post('poll-options', [App\Http\Controllers\Api\PollOptionController::class, 'store']);
+    Route::put('poll-options/{pollOption}', [App\Http\Controllers\Api\PollOptionController::class, 'update']);
+    Route::patch('poll-options/{pollOption}', [App\Http\Controllers\Api\PollOptionController::class, 'update']);
+    Route::delete('poll-options/{pollOption}', [App\Http\Controllers\Api\PollOptionController::class, 'destroy']);
+    Route::get('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'show']);
+    Route::put('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'update']);
+    Route::patch('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'update']);
 });

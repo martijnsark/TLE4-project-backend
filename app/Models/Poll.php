@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Poll extends Model
+class   Poll extends Model
 {
     protected $fillable = ['article_id', 'question'];
 
