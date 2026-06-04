@@ -250,7 +250,7 @@ All API routes are prefixed with `/api`.
 
 Use `Authorization: Bearer <token>` for protected routes after login.
 
-### General Endpoints (users and admins)
+### public endpoints (all users)
 
 - `POST /api/register`
   - Required fields: account details required by the registration form, including at least `email` and `password`
@@ -265,6 +265,23 @@ Use `Authorization: Bearer <token>` for protected routes after login.
     - Optional fields: none
     - Auth: required
     - Returns: a logout confirmation message
+- `GET /api/articles`
+  - Returns: list of articles (public)
+  - Optional query:
+    - `?search=example` — filter articles by `title`, `summary`, or `content` (paginated results)
+    - `?tag_id=1` — filter articles that are linked to the tag with ID `1`
+    - `?tag=Klimaat` — filter articles that are linked to the tag with the name `Klimaat`
+- `GET /api/articles/{article}`
+  - Returns: a single article by ID (public)
+- `GET /api/tags`
+  - Required fields: none
+  - Optional fields: none
+  - Returns: array of `Tag` objects sorted by `category` then `name`
+
+<br><br>
+
+### private endpoints (original user only)
+
 - `PUT /api/update-account`
   - Required fields: account fields accepted by the update controller
   - Optional fields: any editable profile fields supported by the API
@@ -275,27 +292,58 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Optional fields: none
   - Auth: required
   - Returns: a confirmation message or deleted account response from the API
-- `GET /api/articles`
-  - Returns: list of articles (public)
-  - Optional query: `?search=example` — filter articles by `title`, `summary`, or `content` (paginated results)
-- `GET /api/articles/{article}`
-  - Returns: a single article by ID (public)
+- `GET /api/account`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Returns: the authenticated `user` with `savedArticles` loaded
+- `POST /api/account/articles/{article}/save`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none in the request body
+  - Optional fields: none
+  - Path parameter: `article` (the article ID to save)
+  - Returns: a success `message` and the authenticated `user` with updated `savedArticles`
+- `DELETE /api/account/articles/{article}/save`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `article` (the article ID to remove from saved articles)
+  - Returns: a success `message` and the authenticated `user` with updated `savedArticles`
+- `GET /api/me/tags`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Returns: array of `Tag` objects that the authenticated user has selected as interests (sorted by `category` then `name`)
+- `PUT /api/me/tags`
+  - Required fields (JSON body):
+    - `tag_ids` (array, required) — integers; each element must exist in `tags.id`
+  - Optional fields: none
+  - Auth: required
+  - Returns: a success message and the updated array of the user's interest tags
 
-
-### User endpoints (users only)
-
-
-
+<br><br>
 
 ### Admin endpoints (admins only)
 
 - `POST /api/articles`
   - Auth bearer token: required (admin)
   - Required fields: typical article fields (e.g. `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`)
+  - Optional fields:
+    - `published_at`
+    - `tag_ids` (array of tag IDs to attach to the new article)
   - Returns: the created `Article`
 - `PUT /api/articles/{article}`
   - Auth bearer token: required (admin)
-  - Replaces an article; accepts same fields as `POST`
+  - Required fields: none when updating partially; accepted fields match `POST /api/articles`
+  - Optional fields:
+    - article fields such as `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`, `published_at`
+    - `tag_ids` (array of tag IDs to sync on the article)
+  - Replaces an article; accepts the same fields as `POST`
+- `PATCH /api/articles/{article}`
+  - Auth bearer token: required (admin)
+  - Required fields: none when updating partially; accepted fields match `POST /api/articles`
+  - Optional fields: same as `PUT /api/articles/{article}`
+  - Partially updates an article; accepts the same fields as `POST`
 - `DELETE /api/articles/{article}`
   - Auth bearer token: required (admin)
   - Deletes the specified article
@@ -303,7 +351,9 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Auth bearer token: required (admin)
   - Returns article data suitable for editing (admin-only)
 
-  ### backend testing (testing for backend)
+<br><br>
+
+### backend testing (testing for backend)
 
   - `GET /api/me`
     - Required fields: none
@@ -311,7 +361,9 @@ Use `Authorization: Bearer <token>` for protected routes after login.
     - Auth: required
     - Returns: the authenticated `user`
 
-  ### retired routes (lost purpose)
+<br><br>
+
+### retired routes (no longer active)
 
   - `GET /api/home`
     - Required fields: none
