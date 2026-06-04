@@ -17,7 +17,7 @@ class ArticleController extends Controller
         }
 
         $articles = $articles
-            ->with(['tags', 'callToAction'])
+            ->with(['tags', 'callToAction', 'memes'])
             ->latest()
             ->when($request->filled('tag_id'), function ($query) use ($request) {
                 $query->whereHas('tags', function ($tagQuery) use ($request) {
@@ -93,7 +93,7 @@ class ArticleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return response()->json($article->load('callToAction', 'tags'));
+        return response()->json($article->load('callToAction', 'tags', 'memes'));
     }
 
     public function edit(Article $article)
