@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Article;
+use App\Models\Category;
 use App\Models\ArticleView;
 use App\Models\CallToAction;
 use App\Models\ContentReview;
@@ -23,6 +24,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(CategorySeeder::class);
+
+        $klimaatCategory = Category::where('name', 'Klimaat')->first();
+
         $admin = User::updateOrCreate(
             ['email' => 'admin@impakt.test'],
             [
@@ -65,39 +70,46 @@ class DatabaseSeeder extends Seeder
         );
 
         $article = Article::create([
-            'title' => 'Jongeren maken zich zorgen over klimaat, maar willen vooral praktische tips',
-            'summary' => 'Een kort en helder artikel over hoe jongeren naar klimaatproblemen kijken.',
-            'content' => 'Veel jongvolwassenen willen duurzamer leven, maar weten niet altijd waar ze moeten beginnen. Kleine keuzes zoals minder voedsel verspillen, vaker fietsen en bewuster kopen kunnen samen veel verschil maken.',
-            'image_url' => 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1',
-            'original_url' => 'https://example.com/klimaat-jongeren',
-            'tone' => 'light',
-            'status' => 'active',
-            'author_id' => $admin->id,
-            'published_at' => now(),
+            'title'            => 'Jongeren maken zich zorgen over klimaat, maar willen vooral praktische tips',
+            'summary'          => 'Een kort en helder artikel over hoe jongeren naar klimaatproblemen kijken.',
+            'content'          => 'Veel jongvolwassenen willen duurzamer leven, maar weten niet altijd waar ze moeten beginnen.',
+            'body_paragraphs'  => [
+                'Veel jongvolwassenen willen duurzamer leven, maar weten niet altijd waar ze moeten beginnen.',
+                'Kleine keuzes zoals minder voedsel verspillen, vaker fietsen en bewuster kopen kunnen samen veel verschil maken.',
+            ],
+            'image_url'        => 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1',
+            'original_url'     => 'https://example.com/klimaat-jongeren',
+            'tone'             => 'Achtergrond',
+            'status'           => 'active',
+            'author_id'        => $admin->id,
+            'category_id'      => $klimaatCategory?->id,
+            'is_good_news'     => false,
+            'is_trending'      => true,
+            'published_at'     => now(),
         ]);
 
-        // added my more articles for testing home
+        // extra articles for testing home feed
         Article::create([
-            'title' => 'Artikel 2',
-            'summary' => 'Samenvatting 2',
-            'content' => 'Content 2',
-            'image_url' => 'https://images.unsplash.com/photo-2',
+            'title'       => 'Artikel 2',
+            'summary'     => 'Samenvatting 2',
+            'content'     => 'Content 2',
+            'image_url'   => 'https://images.unsplash.com/photo-2',
             'original_url' => 'https://example.com/2',
-            'tone' => 'light',
-            'status' => 'active',
-            'author_id' => $admin->id,
+            'tone'        => 'Live',
+            'status'      => 'active',
+            'author_id'   => $admin->id,
             'published_at' => now()->subDays(1),
         ]);
 
         Article::create([
-            'title' => 'Artikel 3',
-            'summary' => 'Samenvatting 3',
-            'content' => 'Content 3',
-            'image_url' => 'https://images.unsplash.com/photo-3',
+            'title'       => 'Artikel 3',
+            'summary'     => 'Samenvatting 3',
+            'content'     => 'Content 3',
+            'image_url'   => 'https://images.unsplash.com/photo-3',
             'original_url' => 'https://example.com/3',
-            'tone' => 'light',
-            'status' => 'inactive',
-            'author_id' => $admin->id,
+            'tone'        => 'Reportage',
+            'status'      => 'inactive',
+            'author_id'   => $admin->id,
             'published_at' => now()->subDays(1),
         ]);
 
