@@ -10,6 +10,22 @@ use Illuminate\Http\Request;
 
 class MemeController extends Controller
 {
+    //alle memes ophalen van nieuw naar oud, inclusief de bijbehorende artikelen
+    public function index(): JsonResponse
+    {
+        $memes = Meme::with('article:id,title')
+            ->latest()
+            ->paginate(12);
+
+        return response()->json($memes);
+    }
+    //een specifieke meme ophalen, inclusief het bijbehorende artikel
+    public function show(Meme $meme): JsonResponse
+    {
+        return response()->json(
+            $meme->load('article')
+        );
+    }
     //meme aanmaken voor een artikel
     public function store(Request $request, Article $article): JsonResponse
     {

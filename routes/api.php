@@ -17,6 +17,8 @@ Route::post('/login', [AuthController::class, 'login']);
 // home rout + home function (GET method)
 Route::get('/home', [HomePageController::class, 'home']);
 Route::get('/tags', [TagController::class, 'index']);
+Route::get('memes', [MemeController::class, 'index']);
+Route::get('memes/{meme}', [MemeController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
