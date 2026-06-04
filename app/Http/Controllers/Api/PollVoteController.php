@@ -8,12 +8,13 @@ use Illuminate\Http\Request;
 
 class PollVoteController extends Controller
 {
+    // Get all poll votes
     public function index()
     {
         $pollVotes = PollVote::all();
         return response()->json($pollVotes);
     }
-
+    // Show form to create a new poll vote
     public function store(Request $request)
     {
 
@@ -43,12 +44,12 @@ class PollVoteController extends Controller
 
         return response()->json($pollVote);
     }
-
+    // Show a specific poll vote
     public function show(PollVote $pollVote)
     {
         return response()->json($pollVote);
     }
-
+    // Show form to edit a poll vote
     public function update(Request $request, PollVote $pollVote)
     {
         $request->validate([
@@ -62,7 +63,7 @@ class PollVoteController extends Controller
         $pollVote->save();
         return response()->json($pollVote);
     }
-
+    // Delete a poll vote
     public function destroy(PollVote $pollVote)
     {
         $pollVote->delete();

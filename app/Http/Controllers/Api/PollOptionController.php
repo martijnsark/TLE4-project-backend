@@ -8,16 +8,18 @@ use Illuminate\Http\Request;
 
 class PollOptionController extends Controller
 {
+    // Get all poll options
     public function index()
     {
         $pollOptions = PollOption::all();
         return response()->json($pollOptions);
     }
-
+    // Show form to create a new poll option
     public function create()
     {
         return response()->json(['message' => 'Create poll option success']);
     }
+    // Store a new poll option
     public function store(Request $request)
     {
         $request->validate([
@@ -32,15 +34,17 @@ class PollOptionController extends Controller
 
         return response()->json($pollOption);
     }
-
+    // Show a specific poll option
     public function show(PollOption $pollOption)
     {
         return response()->json($pollOption);
     }
+    // Show form to edit a poll option
     public function edit(PollOption $pollOption)
     {
         return response()->json($pollOption);
     }
+    // Update a poll option
     public function update(Request $request, PollOption $pollOption)
     {
         $request->validate([
@@ -52,7 +56,7 @@ class PollOptionController extends Controller
         $pollOption->save();
         return response()->json($pollOption);
     }
-
+    // Delete a poll option
     public function destroy(PollOption $pollOption)
     {
         $pollOption->delete();

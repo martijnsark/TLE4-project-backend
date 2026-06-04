@@ -10,17 +10,18 @@ use Illuminate\Http\Request;
 
 class PollController extends Controller
 {
+    // Get all polls
     public function index()
     {
         $polls = Poll::all();
         return response()->json($polls);
     }
-
+    // Show form to create a new poll
     public function create()
     {
         return response()->json(['message' => 'Create poll success']);
     }
-
+    // Store a new poll
     public function store(Request $request)
     {
         $request->validate([
@@ -35,17 +36,17 @@ class PollController extends Controller
 
         return response()->json(['message' => 'Poll created successfully']);
     }
-
+    // Show a specific poll
     public function show(Poll $poll)
     {
         return response()->json($poll);
     }
-
+    // Show form to edit a poll
     public function edit()
     {
         return response()->json(['message' => 'Edit poll success']);
     }
-
+    // Update a poll
     public function update(Request $request, Poll $poll){
         $request->validate([
             'article_id' => 'required|integer|exists:articles,id',
@@ -58,7 +59,7 @@ class PollController extends Controller
 
         return response()->json($poll);
     }
-
+    // Delete a poll
     public function destroy(Poll $poll){
         $poll->delete();
         return response()->json(['message' => 'Poll deleted successfully']);
