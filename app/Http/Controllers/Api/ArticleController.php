@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
 
@@ -17,7 +18,7 @@ class ArticleController extends Controller
         }
 
         $articles = $articles
-            ->with(['tags', 'callToAction'])
+            ->with(['category', 'tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'views'])
             ->latest()
             ->when($request->filled('tag_id'), function ($query) use ($request) {
                 $query->whereHas('tags', function ($tagQuery) use ($request) {
@@ -40,7 +41,7 @@ class ArticleController extends Controller
             });
         }
 
-        return response()->json($articles->paginate(6));
+        return ArticleResource::collection($articles->paginate(6));
     }
 
     public function create()
@@ -93,7 +94,7 @@ class ArticleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return response()->json($article->load('callToAction', 'tags'));
+        return new ArticleResource($article->load(['category', 'tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'views']));
     }
 
     public function edit(Article $article)
@@ -116,7 +117,7 @@ class ArticleController extends Controller
             'content' => ['sometimes', 'string'],
             'image_url' => ['sometimes', 'url'],
             'original_url' => ['sometimes', 'url'],
-            'tone' => ['sometimes', 'in:serious,light,humorous'],
+            'tone' => ['sometimes', 'in:Live,Achtergrond,Reportage,Opinie'],
             'status' => ['sometimes', 'in:draft,inactive,active,archived'],
             'published_at' => ['sometimes', 'nullable', 'date'],
 
