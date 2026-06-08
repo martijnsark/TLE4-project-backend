@@ -8,6 +8,24 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
+    // happyfeed function
+    public function happyFeed()
+    {
+        // display articles if active and contains happy tag from new to old
+        $articles = Article::query()
+            ->where('status', 'active')
+            ->whereHas('tags', function ($query) {
+                $query->where('name', 'happy');
+            })
+            ->with(['tags', 'callToAction', 'memes'])
+            ->withCount('views')
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($articles);
+    }
+
     public function index(Request $request)
     {
         // Admins see all articles, regular users only see active articles
