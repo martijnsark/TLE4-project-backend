@@ -278,6 +278,7 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Optional fields: none
   - Returns: array of `Tag` objects sorted by `category` then `name`
 
+
 <br><br>
 
 ### private endpoints (original user only)
@@ -320,6 +321,33 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Optional fields: none
   - Auth: required
   - Returns: a success message and the updated array of the user's interest tags
+- `GET /api/polls`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Returns: list of available polls
+- `GET /api/poll-options`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Returns: list of poll options
+- `POST /api/poll-votes`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: poll vote payload accepted by the controller
+  - Optional fields: none
+  - Returns: the created poll vote
+- `DELETE /api/poll-votes/{pollVote}`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `pollVote` (for example `1`)
+  - Returns: a success response after removing the poll vote
+- `GET /api/polls/{poll}/results`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `poll` (for example `1`)
+  - Returns: the poll results summary
 
 <br><br>
 
@@ -350,6 +378,12 @@ Use `Authorization: Bearer <token>` for protected routes after login.
 - `GET /api/articles/{article}/edit`
   - Auth bearer token: required (admin)
   - Returns article data suitable for editing (admin-only)
+- `GET /api/poll-votes/{pollVote}`
+  - Auth: required (`Authorization: Bearer <token>`)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `pollVote` (for example `1`)
+  - Returns: a single poll vote record
 
 <br><br>
 
