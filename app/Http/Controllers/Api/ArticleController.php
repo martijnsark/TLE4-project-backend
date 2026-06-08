@@ -10,6 +10,7 @@ class ArticleController extends Controller
 {
     public function index(Request $request)
     {
+        // Admins see all articles, regular users only see active articles
         if (auth()->check() && auth()->user()->role === 'admin') {
             $articles = Article::query();
         } else {
@@ -18,18 +19,9 @@ class ArticleController extends Controller
 
         $articles = $articles
             ->with(['tags', 'callToAction', 'memes'])
-            ->latest()
-            ->when($request->filled('tag_id'), function ($query) use ($request) {
-                $query->whereHas('tags', function ($tagQuery) use ($request) {
-                    $tagQuery->where('tags.id', $request->tag_id);
-                });
-            })
-            ->when($request->filled('tag'), function ($query) use ($request) {
-                $query->whereHas('tags', function ($tagQuery) use ($request) {
-                    $tagQuery->where('tags.name', $request->tag);
-                });
-            });
+            ->withCount('views');
 
+        // Search with title, summary or content
         if ($request->filled('search')) {
             $search = $request->input('search');
 
@@ -39,6 +31,50 @@ class ArticleController extends Controller
                     ->orWhere('content', 'like', '%' . $search . '%');
             });
         }
+
+        // Filter with tag id
+        if ($request->filled('tag_id')) {
+            $articles->whereHas('tags', function ($query) use ($request) {
+                $query->where('tags.id', $request->tag_id);
+            });
+        }
+
+        // Filter with tag name
+        if ($request->filled('tag')) {
+            $articles->whereHas('tags', function ($query) use ($request) {
+                $query->where('tags.name', $request->tag);
+            });
+        }
+
+        // Filter from date
+        if ($request->filled('date_from')) {
+            $articles->whereDate('published_at', '>=', $request->input('date_from'));
+        }
+
+        // Filter with date
+        if ($request->filled('date_to')) {
+            $articles->whereDate('published_at', '<=', $request->input('date_to'));
+        }
+
+        // Sort
+        match ($request->input('sort', 'latest')) {
+            'oldest' => $articles
+                ->orderBy('published_at')
+                ->orderBy('created_at'),
+
+            'views' => $articles
+                ->orderByDesc('views_count')
+                ->orderByDesc('published_at')
+                ->orderByDesc('created_at'),
+
+            'latest' => $articles
+                ->orderByDesc('published_at')
+                ->orderByDesc('created_at'),
+
+            default => $articles
+                ->orderByDesc('published_at')
+                ->orderByDesc('created_at'),
+        };
 
         return response()->json($articles->paginate(6));
     }
@@ -85,15 +121,23 @@ class ArticleController extends Controller
 
     public function show(Article $article)
     {
-        // just show active for every one
         if (
-            (!auth()->check() || auth()->user()->role !== 'admin')
+            (! auth()->check() || auth()->user()->role !== 'admin')
             && $article->status !== 'active'
         ) {
             abort(403, 'Unauthorized action.');
         }
 
-        return response()->json($article->load('callToAction', 'tags', 'memes'));
+        $article->views()->create([
+            'user_id' => auth()->id(),
+            'viewed_at' => now(),
+        ]);
+
+        return response()->json(
+            $article
+                ->load(['callToAction', 'tags', 'memes'])
+                ->loadCount('views')
+        );
     }
 
     public function edit(Article $article)
