@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class MemeController extends Controller
 {
-    //alle memes ophalen van nieuw naar oud, inclusief de bijbehorende artikelen
+    //get all memes, including the title of the associated article, sorted from new to old, paginated
     public function index(): JsonResponse
     {
         $memes = Meme::with('article:id,title')
@@ -19,14 +19,14 @@ class MemeController extends Controller
 
         return response()->json($memes);
     }
-    //een specifieke meme ophalen, inclusief het bijbehorende artikel
+    //get single meme, including the title of the associated article
     public function show(Meme $meme): JsonResponse
     {
         return response()->json(
             $meme->load('article')
         );
     }
-    //meme aanmaken voor een artikel
+    //create a meme for a specific article, requires title, image_url and optional caption
     public function store(Request $request, Article $article): JsonResponse
     {
         $request->validate([
@@ -47,7 +47,7 @@ class MemeController extends Controller
         ], 201);
     }
 
-    //edit bestaande meme
+    //edit existing meme, can update title, image_url and caption
     public function update(Request $request, Meme $meme): JsonResponse
     {
         $request->validate([
@@ -68,7 +68,7 @@ class MemeController extends Controller
         ]);
     }
 
-    //meme banishen van realiteit
+    //delete a meme
     public function destroy(Meme $meme): JsonResponse
     {
         $meme->delete();
