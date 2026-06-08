@@ -246,7 +246,7 @@ erDiagram
 
 ## Frontend Implementation (Routes and fields)
 
-All API routes are prefixed with `/api`.
+All API routes are prefixed with `http://145.24.237.97/api/`.
 
 Use `Authorization: Bearer <token>` for protected routes after login.
 
