@@ -277,8 +277,34 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Required fields: none
   - Optional fields: none
   - Returns: array of `Tag` objects sorted by `category` then `name`
+- `GET /api/memes`
+    - Required fields: none
+    - Optional query:
+        - `?page=2` — load the next paginated meme feed page
+    - Returns: paginated list of memes for the humor page
+    - Each meme includes:
+        - `id`
+        - `article_id`
+        - `title`
+        - `image_url`
+        - `caption`
+        - `created_at`
+        - `updated_at`
+        - `article` object with at least:
+            - `id`
+            - `title`
+    - Frontend usage:
+        - Use this endpoint to render the humor/meme feed.
+        - Use `article_id` or `article.id` to navigate from a meme to the related article.
 
-
+- `GET /api/memes/{meme}`
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Returns: a single meme with its related article
+    - Frontend usage:
+        - Use this when opening a specific meme detail page.
+        - Use the included `article_id` or `article.id` for the “read related article” button.
 <br><br>
 
 ### private endpoints (original user only)
@@ -384,6 +410,32 @@ Use `Authorization: Bearer <token>` for protected routes after login.
   - Optional fields: none
   - Path parameter: `pollVote` (for example `1`)
   - Returns: a single poll vote record
+- `POST /api/articles/{article}/memes`
+    - Auth bearer token: required (admin)
+    - Required fields:
+        - `title`
+        - `image_url`
+    - Optional fields:
+        - `caption`
+    - Path parameter: `article` (the article ID the meme should be attached to)
+    - Returns: a success `message` and the created `meme`
+
+- `PATCH /api/memes/{meme}`
+    - Auth bearer token: required (admin)
+    - Required fields: none
+    - Optional fields:
+        - `title`
+        - `image_url`
+        - `caption`
+    - Path parameter: `meme` (the meme ID to update)
+    - Returns: a success `message` and the updated `meme`
+
+- `DELETE /api/memes/{meme}`
+    - Auth bearer token: required (admin)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID to delete)
+    - Returns: a success `message` after deleting the meme
 
 <br><br>
 
