@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class ArticleController extends Controller
 {
     // happyfeed function
-    public function happyFeed()
+    public function happyFeed(Request $request)
     {
         // display articles if active and contains happy tag from new to old
         $articles = Article::query()
@@ -17,8 +17,29 @@ class ArticleController extends Controller
             ->whereHas('tags', function ($query) {
                 $query->where('name', 'happy');
             })
-            ->with(['tags', 'callToAction', 'memes'])
+            ->with([
+                'tags' => function ($query) {
+                    $query->where('name', '!=', 'happy');
+                },
+                'callToAction',
+                'memes',
+            ])
             ->withCount('views')
+            ;
+
+        if ($request->filled('tag_id')) {
+            $articles->whereHas('tags', function ($query) use ($request) {
+                $query->where('tags.id', $request->tag_id);
+            });
+        }
+
+        if ($request->filled('tag')) {
+            $articles->whereHas('tags', function ($query) use ($request) {
+                $query->where('tags.name', $request->tag);
+            });
+        }
+
+        $articles = $articles
             ->orderByDesc('published_at')
             ->orderByDesc('created_at')
             ->get();
