@@ -11,6 +11,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Api\CallToActionController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\MemeController;
+use App\Http\Controllers\Api\ArticleSourceController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -40,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
 //articles
 Route::get('articles', [ArticleController::class, 'index']);
 Route::get('articles/{article}', [ArticleController::class, 'show']);
+Route::get('articles/{article}/sources', [ArticleController::class, 'sources']);
+Route::get('articles/{article}/sources', [ArticleSourceController::class, 'index']);
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('articles', [ArticleController::class, 'store']);
@@ -51,6 +54,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('articles/{article}/cta', [CallToActionController::class, 'update']);
     Route::delete('articles/{article}/cta', [CallToActionController::class, 'destroy']);
     Route::post('articles/{article}/memes', [MemeController::class, 'store']);
+    Route::post('articles/{article}/sources', [ArticleSourceController::class, 'store']);
+    Route::patch('articles/{article}/sources/{source}', [ArticleSourceController::class, 'update']);
+    Route::delete('articles/{article}/sources/{source}', [ArticleSourceController::class, 'destroy']);
     Route::patch('memes/{meme}', [MemeController::class, 'update']);
     Route::delete('memes/{meme}', [MemeController::class, 'destroy']);
 });

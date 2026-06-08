@@ -18,7 +18,7 @@ class ArticleController extends Controller
         }
 
         $articles = $articles
-            ->with(['tags', 'callToAction', 'memes'])
+            ->with(['tags', 'callToAction', 'memes', 'sources'])
             ->withCount('views');
 
         // Search with title, summary or content
@@ -195,5 +195,21 @@ class ArticleController extends Controller
         $article->delete();
 
         return response()->json(['message' => 'Delete article success']);
+    }
+
+    public function sources(Article $article)
+    {
+        if (
+            (! auth()->check() || auth()->user()->role !== 'admin')
+            && $article->status !== 'active'
+        ) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return response()->json(
+            $article->sources()
+                ->orderByDesc('article_sources.is_primary')
+                ->get()
+        );
     }
 }
