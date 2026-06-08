@@ -250,144 +250,184 @@ All API routes are prefixed with `http://145.24.237.97/api/`.
 
 Use `Authorization: Bearer <token>` for protected routes after login.
 
+Example JSON bodies below use realistic sample values. For routes with path or query parameters, the example request shows the complete URL.
+
 ### public endpoints (all users)
 
 - `POST /api/register`
-  - Required fields: account details required by the registration form, including at least `email` and `password`
-  - Optional fields: any additional profile fields accepted by the registration controller
-  - Returns: the created `user` and any auth payload returned by the API
+  - Required fields: `username`, `email`, `password`
+  - Optional fields: `name`
+  - Example request:
+    ```json
+    {
+      "username": "julia_vermeer",
+      "name": "Julia Vermeer",
+      "email": "julia.vermeer@example.com",
+      "password": "Str0ngPassw0rd!",
+      "password_confirmation": "Str0ngPassw0rd!"
+    }
+    ```
+  - Returns: the created `user` and auth token
 - `POST /api/login`
-    - Required fields: `email`, `password`
-    - Optional fields: none in the current API controller
-    - Returns: `message`, `user`, and `token`
+  - Required fields: `email`, `password`
+  - Optional fields: none in the current API controller
+  - Example request:
+    ```json
+    {
+      "email": "julia.vermeer@example.com",
+      "password": "Str0ngPassw0rd!"
+    }
+    ```
+  - Returns: `message`, `user`, and `token`
 - `POST /api/logout`
-    - Required fields: none
-    - Optional fields: none
-    - Auth: required
-    - Returns: a logout confirmation message
+  - Required fields: none
+  - Optional fields: none
+  - Auth: required
+  - Example request: `POST /api/logout`
+  - Returns: a logout confirmation message
 - `GET /api/articles`
-    - Returns: paginated list of articles (public)
-    - Each article includes `views_count`, which can be used on article cards to show how popular the article is
-    - Optional query:
-        - `?search=example` — filter articles by `title`, `summary`, or `content`
-        - `?tag_id=1` — filter articles that are linked to the tag with ID `1`
-        - `?tag=Klimaat` — filter articles that are linked to the tag with the name `Klimaat`
-        - `?sort=latest` — sort articles from newest to oldest
-        - `?sort=oldest` — sort articles from oldest to newest
-        - `?sort=views` — sort articles by most viewed first
-        - `?date_from=2026-06-01` — only show articles published on or after this date
-        - `?date_to=2026-06-30` — only show articles published on or before this date
-    - Query options can be combined, for example:
-        - `/api/articles?search=klimaat&sort=views&date_from=2026-06-01`
-        - `/api/articles?tag_id=1&sort=latest`
+  - Returns: paginated list of articles (public)
+  - Each article includes `views_count`, which can be used on article cards to show how popular the article is
+  - Example requests:
+    - `GET /api/articles`
+    - `GET /api/articles?search=klimaat&sort=views&date_from=2026-06-01&date_to=2026-06-30`
+    - `GET /api/articles?tag_id=1&sort=latest`
+  - Query options:
+    - `search=klimaat` filters by `title`, `summary`, or `content`
+    - `tag_id=1` filters articles linked to tag ID `1`
+    - `tag=Klimaat` filters articles linked to the tag name `Klimaat`
+    - `sort=latest` sorts newest first
+    - `sort=oldest` sorts oldest first
+    - `sort=views` sorts by most viewed first
+    - `date_from=2026-06-01` only shows articles published on or after that date
+    - `date_to=2026-06-30` only shows articles published on or before that date
 - `GET /api/articles/{article}`
-    - Returns: a single article by ID (public)
-    - Registers a view for the article when the article is opened
-    - Also returns `views_count`, so the frontend can show how many times the article has been viewed
-    - May also return related data when available, such as:
-        - `tags`
-        - `call_to_action`
-        - `memes`
+  - Returns: a single article by ID (public)
+  - Registers a view for the article when the article is opened
+  - Example request: `GET /api/articles/42`
+  - Also returns `views_count`, so the frontend can show how many times the article has been viewed
+  - May also return related data when available, such as `tags`, `call_to_action`, and `memes`
 - `GET /api/tags`
   - Required fields: none
   - Optional fields: none
+  - Example request: `GET /api/tags`
   - Returns: array of `Tag` objects sorted by `category` then `name`
 - `GET /api/memes`
-    - Required fields: none
-    - Optional query:
-        - `?page=2` — load the next paginated meme feed page
-    - Returns: paginated list of memes for the humor page
-    - Each meme includes:
-        - `id`
-        - `article_id`
-        - `title`
-        - `image_url`
-        - `caption`
-        - `created_at`
-        - `updated_at`
-        - `article` object with at least:
-            - `id`
-            - `title`
-    - Frontend usage:
-        - Use this endpoint to render the humor/meme feed.
-        - Use `article_id` or `article.id` to navigate from a meme to the related article.
+  - Required fields: none
+  - Optional query: `page=2` to load the next paginated meme feed page
+  - Example request: `GET /api/memes?page=2`
+  - Returns: paginated list of memes for the humor page
+  - Each meme includes `id`, `article_id`, `title`, `image_url`, `caption`, `created_at`, `updated_at`, and an `article` object with at least `id` and `title`
+  - Frontend usage: use this endpoint to render the humor/meme feed and navigate from a meme to the related article
 
 - `GET /api/memes/{meme}`
-    - Required fields: none
-    - Optional fields: none
-    - Path parameter: `meme` (the meme ID)
-    - Returns: a single meme with its related article
-    - Frontend usage:
-        - Use this when opening a specific meme detail page.
-        - Use the included `article_id` or `article.id` for the “read related article” button.
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `meme` (the meme ID)
+  - Example request: `GET /api/memes/12`
+  - Returns: a single meme with its related article
+  - Frontend usage: use this when opening a specific meme detail page and use the included `article_id` or `article.id` for the related article button
 <br><br>
 
 ### private endpoints (original user only)
 
 - `PUT /api/update-account`
-  - Required fields: account fields accepted by the update controller
-  - Optional fields: any editable profile fields supported by the API
+  - Required fields: `username`, `email`, `password`
+  - Optional fields: `name`
   - Auth: required
+  - Example request:
+    ```json
+    {
+      "username": "julia_vermeer",
+      "name": "Julia Vermeer",
+      "email": "julia.vermeer.updated@example.com",
+      "password": "N3wStr0ngPassw0rd!",
+      "password_confirmation": "N3wStr0ngPassw0rd!"
+    }
+    ```
   - Returns: the updated `user`
 - `DELETE /api/delete-account`
   - Required fields: none
   - Optional fields: none
   - Auth: required
+  - Example request: `DELETE /api/delete-account`
   - Returns: a confirmation message or deleted account response from the API
 - `GET /api/account`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
+  - Example request: `GET /api/account`
   - Returns: the authenticated `user` with `savedArticles` loaded
 - `POST /api/account/articles/{article}/save`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none in the request body
   - Optional fields: none
   - Path parameter: `article` (the article ID to save)
+  - Example request: `POST /api/account/articles/42/save`
   - Returns: a success `message` and the authenticated `user` with updated `savedArticles`
 - `DELETE /api/account/articles/{article}/save`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
   - Path parameter: `article` (the article ID to remove from saved articles)
+  - Example request: `DELETE /api/account/articles/42/save`
   - Returns: a success `message` and the authenticated `user` with updated `savedArticles`
 - `GET /api/me/tags`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
+  - Example request: `GET /api/me/tags`
   - Returns: array of `Tag` objects that the authenticated user has selected as interests (sorted by `category` then `name`)
 - `PUT /api/me/tags`
-  - Required fields (JSON body):
-    - `tag_ids` (array, required) — integers; each element must exist in `tags.id`
+  - Required fields (JSON body): `tag_ids` (array of integers that must exist in `tags.id`)
   - Optional fields: none
   - Auth: required
+  - Example request:
+    ```json
+    {
+      "tag_ids": [1, 3, 7]
+    }
+    ```
   - Returns: a success message and the updated array of the user's interest tags
 - `GET /api/polls`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
+  - Example request: `GET /api/polls`
   - Returns: list of available polls
 - `GET /api/poll-options`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
+  - Example request: `GET /api/poll-options`
   - Returns: list of poll options
 - `POST /api/poll-votes`
   - Auth: required (`Authorization: Bearer <token>`)
-  - Required fields: poll vote payload accepted by the controller
+  - Required fields: `poll_id`, `user_id`, `option_id`, `voted_at`
   - Optional fields: none
+  - Example request:
+    ```json
+    {
+      "poll_id": 7,
+      "user_id": 15,
+      "option_id": 31,
+      "voted_at": "2026-06-08 14:30:00"
+    }
+    ```
   - Returns: the created poll vote
 - `DELETE /api/poll-votes/{pollVote}`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
   - Path parameter: `pollVote` (for example `1`)
+  - Example request: `DELETE /api/poll-votes/18`
   - Returns: a success response after removing the poll vote
 - `GET /api/polls/{poll}/results`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
   - Path parameter: `poll` (for example `1`)
+  - Example request: `GET /api/polls/7/results`
   - Returns: the poll results summary
 
 <br><br>
@@ -396,61 +436,205 @@ Use `Authorization: Bearer <token>` for protected routes after login.
 
 - `POST /api/articles`
   - Auth bearer token: required (admin)
-  - Required fields: typical article fields (e.g. `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`)
-  - Optional fields:
-    - `published_at`
-    - `tag_ids` (array of tag IDs to attach to the new article)
+  - Required fields: `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`
+  - Optional fields: `published_at`, `tag_ids`
+  - Example request:
+    ```json
+    {
+      "title": "Dutch Railways Introduces New Weekend Service",
+      "summary": "A lighter look at the new train schedule changes across the Randstad.",
+      "content": "NS is adding a new weekend service pattern to reduce congestion and improve reliability for travelers.",
+      "image_url": "https://images.example.com/articles/ns-weekend-service.jpg",
+      "original_url": "https://news.example.com/dutch-railways-weekend-service",
+      "tone": "light",
+      "status": "active",
+      "published_at": "2026-06-08 09:00:00",
+      "tag_ids": [1, 4, 9]
+    }
+    ```
   - Returns: the created `Article`
 - `PUT /api/articles/{article}`
   - Auth bearer token: required (admin)
   - Required fields: none when updating partially; accepted fields match `POST /api/articles`
-  - Optional fields:
-    - article fields such as `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`, `published_at`
-    - `tag_ids` (array of tag IDs to sync on the article)
+  - Optional fields: article fields such as `title`, `summary`, `content`, `image_url`, `original_url`, `tone`, `status`, `published_at`, and `tag_ids`
+  - Example request:
+    ```json
+    {
+      "title": "Dutch Railways Expands Weekend Service",
+      "summary": "Updated copy for the weekend service article.",
+      "content": "The schedule change is now rolling out with a slightly expanded route plan.",
+      "image_url": "https://images.example.com/articles/ns-weekend-service-updated.jpg",
+      "original_url": "https://news.example.com/dutch-railways-weekend-service-updated",
+      "tone": "humorous",
+      "status": "active",
+      "published_at": "2026-06-08 10:15:00",
+      "tag_ids": [1, 4, 9]
+    }
+    ```
   - Replaces an article; accepts the same fields as `POST`
 - `PATCH /api/articles/{article}`
   - Auth bearer token: required (admin)
   - Required fields: none when updating partially; accepted fields match `POST /api/articles`
   - Optional fields: same as `PUT /api/articles/{article}`
+  - Example request:
+    ```json
+    {
+      "status": "archived",
+      "published_at": "2026-06-08 10:15:00",
+      "tag_ids": [1, 4, 9]
+    }
+    ```
   - Partially updates an article; accepts the same fields as `POST`
 - `DELETE /api/articles/{article}`
   - Auth bearer token: required (admin)
+  - Example request: `DELETE /api/articles/42`
   - Deletes the specified article
 - `GET /api/articles/{article}/edit`
   - Auth bearer token: required (admin)
+  - Example request: `GET /api/articles/42/edit`
   - Returns article data suitable for editing (admin-only)
 - `GET /api/poll-votes/{pollVote}`
   - Auth: required (`Authorization: Bearer <token>`)
   - Required fields: none
   - Optional fields: none
   - Path parameter: `pollVote` (for example `1`)
+  - Example request: `GET /api/poll-votes/18`
   - Returns: a single poll vote record
 - `POST /api/articles/{article}/memes`
-    - Auth bearer token: required (admin)
-    - Required fields:
-        - `title`
-        - `image_url`
-    - Optional fields:
-        - `caption`
-    - Path parameter: `article` (the article ID the meme should be attached to)
-    - Returns: a success `message` and the created `meme`
+  - Auth bearer token: required (admin)
+  - Required fields: `title`, `image_url`
+  - Optional fields: `caption`
+  - Path parameter: `article` (the article ID the meme should be attached to)
+  - Example request:
+    ```json
+    {
+      "title": "When the train is actually on time",
+      "image_url": "https://images.example.com/memes/train-on-time.jpg",
+      "caption": "A rare but glorious moment in public transport history."
+    }
+    ```
+  - Returns: a success `message` and the created `meme`
 
 - `PATCH /api/memes/{meme}`
-    - Auth bearer token: required (admin)
-    - Required fields: none
-    - Optional fields:
-        - `title`
-        - `image_url`
-        - `caption`
-    - Path parameter: `meme` (the meme ID to update)
-    - Returns: a success `message` and the updated `meme`
+  - Auth bearer token: required (admin)
+  - Required fields: none
+  - Optional fields: `title`, `image_url`, `caption`
+  - Path parameter: `meme` (the meme ID to update)
+  - Example request:
+    ```json
+    {
+      "title": "When the train is finally on time",
+      "image_url": "https://images.example.com/memes/train-on-time-updated.jpg",
+      "caption": "This is what hope looks like."
+    }
+    ```
+  - Returns: a success `message` and the updated `meme`
 
 - `DELETE /api/memes/{meme}`
-    - Auth bearer token: required (admin)
-    - Required fields: none
-    - Optional fields: none
-    - Path parameter: `meme` (the meme ID to delete)
-    - Returns: a success `message` after deleting the meme
+  - Auth bearer token: required (admin)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `meme` (the meme ID to delete)
+  - Example request: `DELETE /api/memes/12`
+  - Returns: a success `message` after deleting the meme
+
+- `POST /api/polls`
+  - Auth bearer token: required (admin)
+  - Required fields: `article_id`, `question`
+  - Optional fields: none
+  - Example request:
+    ```json
+    {
+      "article_id": 42,
+      "question": "What should the next train-focused article cover?"
+    }
+    ```
+  - Returns: a success message after creating the poll
+
+- `PUT /api/polls/{poll}`
+  - Auth bearer token: required (admin)
+  - Required fields: `article_id`, `question`
+  - Optional fields: none
+  - Path parameter: `poll` (for example `7`)
+  - Example request:
+    ```json
+    {
+      "article_id": 42,
+      "question": "What should the updated poll question be?"
+    }
+    ```
+  - Returns: the updated poll
+
+- `PATCH /api/polls/{poll}`
+  - Auth bearer token: required (admin)
+  - Required fields: `article_id`, `question`
+  - Optional fields: none
+  - Path parameter: `poll` (for example `7`)
+  - Example request:
+    ```json
+    {
+      "article_id": 42,
+      "question": "What should the updated poll question be?"
+    }
+    ```
+  - Returns: the updated poll
+
+- `DELETE /api/polls/{poll}`
+  - Auth bearer token: required (admin)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `poll` (for example `7`)
+  - Example request: `DELETE /api/polls/7`
+  - Returns: a success message after deleting the poll
+
+- `POST /api/poll-options`
+  - Auth bearer token: required (admin)
+  - Required fields: `poll_id`, `option_text`
+  - Optional fields: none
+  - Example request:
+    ```json
+    {
+      "poll_id": 7,
+      "option_text": "More weekend trains"
+    }
+    ```
+  - Returns: the created poll option
+
+- `PUT /api/poll-options/{pollOption}`
+  - Auth bearer token: required (admin)
+  - Required fields: `poll_id`, `option_text`
+  - Optional fields: none
+  - Path parameter: `pollOption` (for example `31`)
+  - Example request:
+    ```json
+    {
+      "poll_id": 7,
+      "option_text": "Fewer delays"
+    }
+    ```
+  - Returns: the updated poll option
+
+- `PATCH /api/poll-options/{pollOption}`
+  - Auth bearer token: required (admin)
+  - Required fields: `poll_id`, `option_text`
+  - Optional fields: none
+  - Path parameter: `pollOption` (for example `31`)
+  - Example request:
+    ```json
+    {
+      "poll_id": 7,
+      "option_text": "Fewer delays"
+    }
+    ```
+  - Returns: the updated poll option
+
+- `DELETE /api/poll-options/{pollOption}`
+  - Auth bearer token: required (admin)
+  - Required fields: none
+  - Optional fields: none
+  - Path parameter: `pollOption` (for example `31`)
+  - Example request: `DELETE /api/poll-options/31`
+  - Returns: the deleted poll option record
 
 <br><br>
 
@@ -460,6 +644,7 @@ Use `Authorization: Bearer <token>` for protected routes after login.
     - Required fields: none
     - Optional fields: none
     - Auth: required
+    - Example request: `GET /api/me`
     - Returns: the authenticated `user`
 
 <br><br>
