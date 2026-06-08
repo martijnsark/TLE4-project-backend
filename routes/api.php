@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\CallToActionController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\MemeController;
 use App\Http\Controllers\Api\ArticleSourceController;
+use App\Http\Controllers\Api\SourceController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -43,6 +44,7 @@ Route::get('articles', [ArticleController::class, 'index']);
 Route::get('articles/{article}', [ArticleController::class, 'show']);
 Route::get('articles/{article}/sources', [ArticleController::class, 'sources']);
 Route::get('articles/{article}/sources', [ArticleSourceController::class, 'index']);
+Route::get('sources', [SourceController::class, 'index']);
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('articles', [ArticleController::class, 'store']);
@@ -57,6 +59,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('articles/{article}/sources', [ArticleSourceController::class, 'store']);
     Route::patch('articles/{article}/sources/{source}', [ArticleSourceController::class, 'update']);
     Route::delete('articles/{article}/sources/{source}', [ArticleSourceController::class, 'destroy']);
+    Route::post('sources', [SourceController::class, 'store']);
+    Route::patch('sources/{source}', [SourceController::class, 'update']);
+    Route::delete('sources/{source}', [SourceController::class, 'destroy']);
     Route::patch('memes/{meme}', [MemeController::class, 'update']);
     Route::delete('memes/{meme}', [MemeController::class, 'destroy']);
 });

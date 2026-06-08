@@ -135,7 +135,7 @@ class ArticleController extends Controller
 
         return response()->json(
             $article
-                ->load(['callToAction', 'tags', 'memes'])
+                ->load(['callToAction', 'tags', 'memes', 'sources'])
                 ->loadCount('views')
         );
     }
