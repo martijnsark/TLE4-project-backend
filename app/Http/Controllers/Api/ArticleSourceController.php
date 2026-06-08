@@ -10,12 +10,7 @@ use Illuminate\Http\Request;
 
 class ArticleSourceController extends Controller
 {
-    /**
-     * Haalt alle bronnen op die gekoppeld zijn aan een artikel.
-     *
-     * Dit kan de frontend gebruiken om onder een artikel
-     * een bronnenoverzicht te tonen.
-     */
+    //get all sources linked to an article, sorted by primary sources first
     public function index(Article $article): JsonResponse
     {
         $sources = $article->sources()
@@ -25,13 +20,7 @@ class ArticleSourceController extends Controller
         return response()->json($sources);
     }
 
-    /**
-     * Koppelt een bron aan een artikel.
-     *
-     * De bron zelf bestaat al in de sources tabel.
-     * Hier slaan we de specifieke URL van het bronartikel op
-     * in de koppeltabel article_sources.
-     */
+    //link a source to an article, requires source_id, source_url and optional is_primary
     public function store(Request $request, Article $article): JsonResponse
     {
         $validated = $request->validate([
@@ -61,12 +50,7 @@ class ArticleSourceController extends Controller
         ], 201);
     }
 
-    /**
-     * Past de bronkoppeling van een artikel aan.
-     *
-     * Dit update niet de source zelf, maar alleen de gegevens
-     * in de article_sources koppeltabel.
-     */
+    //update the pivot data for a source linked to an article, can update source_url and is_primary
     public function update(Request $request, Article $article, Source $source): JsonResponse
     {
         if (! $article->sources()->where('sources.id', $source->id)->exists()) {
@@ -90,12 +74,7 @@ class ArticleSourceController extends Controller
         ]);
     }
 
-    /**
-     * Verwijdert een bronkoppeling van een artikel.
-     *
-     * Dit verwijdert alleen de koppeling in article_sources,
-     * niet de source uit de sources tabel.
-     */
+    //unlink a source from an article
     public function destroy(Article $article, Source $source): JsonResponse
     {
         if (! $article->sources()->where('sources.id', $source->id)->exists()) {

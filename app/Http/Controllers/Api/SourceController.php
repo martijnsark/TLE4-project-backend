@@ -9,13 +9,14 @@ use Illuminate\Http\Request;
 
 class SourceController extends Controller
 {
+    //get all sources, sorted by name
     public function index(): JsonResponse
     {
         return response()->json(
             Source::orderBy('name')->get()
         );
     }
-
+    //get single source
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -31,7 +32,7 @@ class SourceController extends Controller
             'source' => $source,
         ], 201);
     }
-
+    //edit existing source, can update name, url and reliability_score
     public function update(Request $request, Source $source): JsonResponse
     {
         $validated = $request->validate([
@@ -47,7 +48,7 @@ class SourceController extends Controller
             'source' => $source->fresh(),
         ]);
     }
-
+    //delete a source, also deletes all links to articles but does not delete the articles themselves
     public function destroy(Source $source): JsonResponse
     {
         $source->delete();
