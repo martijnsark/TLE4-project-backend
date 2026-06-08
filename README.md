@@ -301,6 +301,12 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - `sort=views` sorts by most viewed first
     - `date_from=2026-06-01` only shows articles published on or after that date
     - `date_to=2026-06-30` only shows articles published on or before that date
+- `GET /api/happy-feed`
+  - Returns: list of active articles that have the `happy` tag, sorted from newest to oldest
+  - Example request: `GET /api/happy-feed`
+  - Optional filters:
+    - `tag_id=1` filters the happy feed by tag ID
+    - `tag=Politiek` filters the happy feed by tag name
 - `GET /api/articles/{article}`
   - Returns: a single article by ID (public)
   - Registers a view for the article when the article is opened
