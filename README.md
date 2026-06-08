@@ -266,13 +266,28 @@ Use `Authorization: Bearer <token>` for protected routes after login.
     - Auth: required
     - Returns: a logout confirmation message
 - `GET /api/articles`
-  - Returns: list of articles (public)
-  - Optional query:
-    - `?search=example` — filter articles by `title`, `summary`, or `content` (paginated results)
-    - `?tag_id=1` — filter articles that are linked to the tag with ID `1`
-    - `?tag=Klimaat` — filter articles that are linked to the tag with the name `Klimaat`
+    - Returns: paginated list of articles (public)
+    - Each article includes `views_count`, which can be used on article cards to show how popular the article is
+    - Optional query:
+        - `?search=example` — filter articles by `title`, `summary`, or `content`
+        - `?tag_id=1` — filter articles that are linked to the tag with ID `1`
+        - `?tag=Klimaat` — filter articles that are linked to the tag with the name `Klimaat`
+        - `?sort=latest` — sort articles from newest to oldest
+        - `?sort=oldest` — sort articles from oldest to newest
+        - `?sort=views` — sort articles by most viewed first
+        - `?date_from=2026-06-01` — only show articles published on or after this date
+        - `?date_to=2026-06-30` — only show articles published on or before this date
+    - Query options can be combined, for example:
+        - `/api/articles?search=klimaat&sort=views&date_from=2026-06-01`
+        - `/api/articles?tag_id=1&sort=latest`
 - `GET /api/articles/{article}`
-  - Returns: a single article by ID (public)
+    - Returns: a single article by ID (public)
+    - Registers a view for the article when the article is opened
+    - Also returns `views_count`, so the frontend can show how many times the article has been viewed
+    - May also return related data when available, such as:
+        - `tags`
+        - `call_to_action`
+        - `memes`
 - `GET /api/tags`
   - Required fields: none
   - Optional fields: none
