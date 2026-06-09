@@ -27,10 +27,11 @@ class MemeForm
                 ->directory('memes')
                 ->image()
                 ->imagePreviewHeight('200')
+                ->required()
                 ->columnSpanFull(),
 
             TextInput::make('title')
-                ->label('Intern label')
+                ->label('Intern label (optioneel)')
                 ->maxLength(255),
 
             TextInput::make('author')

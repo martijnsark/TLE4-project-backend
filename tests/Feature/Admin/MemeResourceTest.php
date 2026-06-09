@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Memes\Pages\CreateMeme;
 use App\Filament\Resources\Memes\Pages\ListMemes;
 use App\Models\Article;
 use App\Models\Meme;
@@ -36,4 +37,17 @@ it('can create a meme record with article FK', function () {
     expect($meme->cat)->toBe('KLIMAAT');
 
     $this->assertDatabaseHas('memes', ['id' => $meme->id, 'article_id' => $article->id]);
+});
+
+it('allows a meme with only an image and no title/top/bot', function () {
+    $meme = Meme::create([
+        'image_url' => 'memes/img.jpg',
+    ]);
+
+    expect($meme->fresh())
+        ->title->toBeNull()
+        ->top->toBeNull()
+        ->bot->toBeNull()
+        ->caption->toBeNull()
+        ->image_url->toBe('memes/img.jpg');
 });
