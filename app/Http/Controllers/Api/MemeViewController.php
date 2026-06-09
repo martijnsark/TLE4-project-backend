@@ -12,10 +12,14 @@ class MemeViewController extends Controller
     {
         $request->validate([
             'meme_id' => 'required|exists:memes,id',
+            'user_id' => 'required|exists:users,id',
+            'viewing_time_seconds' => 'required|integer|min:0',
         ]);
 
         $view = new MemeView();
         $view->meme_id = $request->meme_id;
+        $view->user_id = $request->user_id;
+        $view->viewing_time_seconds = $request->viewing_time_seconds;
         $view->save();
 
         return response()->json([
