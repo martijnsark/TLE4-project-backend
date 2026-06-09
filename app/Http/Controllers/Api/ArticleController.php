@@ -9,45 +9,7 @@ use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    // happyfeed function
-    public function happyFeed(Request $request)
-    {
-        // display articles if active and contains happy tag from new to old
-        $articles = Article::query()
-            ->where('status', 'active')
-            ->whereHas('tags', function ($query) {
-                $query->where('name', 'happy');
-            })
-            ->with([
-                'tags' => function ($query) {
-                    $query->where('name', '!=', 'happy');
-                },
-                'callToAction',
-                'memes',
-            ])
-            ->withCount('views')
-            ;
-
-        if ($request->filled('tag_id')) {
-            $articles->whereHas('tags', function ($query) use ($request) {
-                $query->where('tags.id', $request->tag_id);
-            });
-        }
-
-        if ($request->filled('tag')) {
-            $articles->whereHas('tags', function ($query) use ($request) {
-                $query->where('tags.name', $request->tag);
-            });
-        }
-
-        $articles = $articles
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at')
-            ->get();
-
-        return response()->json($articles);
-    }
-
+    //get all articles, admins see all articles, regular users only see active articles, can search with title, summary or content, can filter with tag id or tag name, can filter with date range, can sort with latest, oldest or most viewed
     public function index(Request $request)
     {
         // Admins see all articles, regular users only see active articles
@@ -118,12 +80,12 @@ class ArticleController extends Controller
 
         return ArticleResource::collection($articles->paginate(6));
     }
-
+    //create an article, only the author or admin can create an article
     public function create()
     {
         return response()->json(['message' => 'Create article success']);
     }
-
+    //store an article, requires title, summary, content, image_url, original_url, tone and status, also can include published_at and tags associated with the article, only the author or admin can create an article
     public function store(Request $request)
     {
         $request->validate([
@@ -158,7 +120,7 @@ class ArticleController extends Controller
 
         return response()->json($article->load(['tags', 'callToAction']), 201);
     }
-
+    //get single article
     public function show(Article $article)
     {
         if (
@@ -179,7 +141,7 @@ class ArticleController extends Controller
                 ->loadCount('views')
         );
     }
-
+    //edit an article
     public function edit(Article $article)
     {
         if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
@@ -187,7 +149,7 @@ class ArticleController extends Controller
         }
         return response()->json(['message' => 'Update article success']);
     }
-
+    //update an article, only the author or admin can update an article, can update title, summary, content, image_url, original_url, tone, status and published_at, also can update the tags associated with the article
     public function update(Request $request, Article $article)
     {
         if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
@@ -225,7 +187,7 @@ class ArticleController extends Controller
 
         return response()->json($article->load(['tags', 'callToAction']));
     }
-
+    //delete an article
     public function destroy(Article $article)
     {
         if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
@@ -236,4 +198,43 @@ class ArticleController extends Controller
 
         return response()->json(['message' => 'Delete article success']);
     }
+    // happyfeed function
+    public function happyFeed(Request $request)
+    {
+        // display articles if active and contains happy tag from new to old
+        $articles = Article::query()
+            ->where('status', 'active')
+            ->whereHas('tags', function ($query) {
+                $query->where('name', 'happy');
+            })
+            ->with([
+                'tags' => function ($query) {
+                    $query->where('name', '!=', 'happy');
+                },
+                'callToAction',
+                'memes',
+            ])
+            ->withCount('views')
+        ;
+
+        if ($request->filled('tag_id')) {
+            $articles->whereHas('tags', function ($query) use ($request) {
+                $query->where('tags.id', $request->tag_id);
+            });
+        }
+
+        if ($request->filled('tag')) {
+            $articles->whereHas('tags', function ($query) use ($request) {
+                $query->where('tags.name', $request->tag);
+            });
+        }
+
+        $articles = $articles
+            ->orderByDesc('published_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($articles);
+    }
+
 }

@@ -41,7 +41,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // updated tags based on feedback from Milan + added happy tag
         $tags = collect([
             // navigation tags — de 6 RN-mock categorieën
             ['name' => 'Voor jou',   'category' => 'navigation'],
