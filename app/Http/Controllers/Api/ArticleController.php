@@ -58,7 +58,7 @@ class ArticleController extends Controller
         }
 
         $articles = $articles
-            ->with(['category', 'tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'memes'])
+            ->with(['tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'memes'])
             ->withCount('views');
 
         // Search with title, summary or content
@@ -129,7 +129,7 @@ class ArticleController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'required|string',
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'image_url' => 'required|url',
             'original_url' => 'required|url',
             'tone' => 'required|string|max:255',
@@ -175,7 +175,7 @@ class ArticleController extends Controller
 
         return new ArticleResource(
             $article
-                ->load(['category', 'tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'memes'])
+                ->load(['tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'memes'])
                 ->loadCount('views')
         );
     }

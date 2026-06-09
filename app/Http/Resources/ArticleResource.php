@@ -19,8 +19,8 @@ class ArticleResource extends JsonResource
             'sub'      => $this->summary,
             'body'     => $this->mapBodyParagraphs(),
             'img'      => $this->resolveImageUrl(),
-            'cat'      => $this->category?->name,
-            'tags'     => $this->tags->pluck('name')->values()->toArray(),
+            'cat'      => $this->primaryTag()?->name,
+            'tags'     => $this->tags->where('category', '!=', 'flag')->pluck('name')->values()->toArray(),
             'tone'     => $this->tone,
             'trending' => (bool) $this->is_trending,
             'date'     => $this->published_at
