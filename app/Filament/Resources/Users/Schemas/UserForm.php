@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Users\Schemas;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Hash;
 
 class UserForm
 {
@@ -13,18 +12,17 @@ class UserForm
     {
         return $schema->components([
             TextInput::make('username')
-                ->required()
-                ->unique(ignoreRecord: true)
+                ->disabled()
                 ->maxLength(50),
 
             TextInput::make('name')
+                ->disabled()
                 ->maxLength(100),
 
             TextInput::make('email')
                 ->label('E-mailadres')
                 ->email()
-                ->required()
-                ->unique(ignoreRecord: true),
+                ->disabled(),
 
             Select::make('role')
                 ->options([
@@ -33,13 +31,6 @@ class UserForm
                 ])
                 ->required()
                 ->default('user'),
-
-            TextInput::make('password')
-                ->password()
-                ->dehydrated(fn (?string $state): bool => filled($state))
-                ->required(fn (string $operation): bool => $operation === 'create')
-                ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                ->helperText('Laat leeg om het wachtwoord niet te wijzigen'),
         ]);
     }
 }

@@ -8,7 +8,6 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class ArticleForm
@@ -51,12 +50,6 @@ class ArticleForm
                 ->url()
                 ->maxLength(500),
 
-            Select::make('category_id')
-                ->label('Categorie')
-                ->relationship('category', 'name')
-                ->searchable()
-                ->preload(),
-
             Select::make('tone')
                 ->label('Toon')
                 ->options([
@@ -78,12 +71,6 @@ class ArticleForm
                 ])
                 ->required()
                 ->default('draft'),
-
-            Toggle::make('is_good_news')
-                ->label('Goed nieuws'),
-
-            Toggle::make('is_trending')
-                ->label('Trending'),
 
             DateTimePicker::make('published_at')
                 ->label('Publicatiedatum'),

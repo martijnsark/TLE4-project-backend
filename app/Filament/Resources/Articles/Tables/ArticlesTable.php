@@ -5,8 +5,7 @@ namespace App\Filament\Resources\Articles\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -25,9 +24,6 @@ class ArticlesTable
                 TextColumn::make('title')
                     ->searchable()
                     ->limit(50),
-                TextColumn::make('category.name')
-                    ->label('Categorie')
-                    ->badge(),
                 TextColumn::make('tone')
                     ->badge(),
                 TextColumn::make('status')
@@ -38,20 +34,11 @@ class ArticlesTable
                         'inactive' => 'warning',
                         'archived' => 'danger',
                     }),
-                IconColumn::make('is_good_news')
-                    ->label('Goed nieuws')
-                    ->boolean(),
-                IconColumn::make('is_trending')
-                    ->label('Trending')
-                    ->boolean(),
                 TextColumn::make('published_at')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('category_id')
-                    ->label('Categorie')
-                    ->relationship('category', 'name'),
                 SelectFilter::make('status')
                     ->options([
                         'draft'    => 'Concept',
