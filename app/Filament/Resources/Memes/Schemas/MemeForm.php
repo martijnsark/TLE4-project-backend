@@ -62,10 +62,6 @@ class MemeForm
                 ->label('Onderste tekst')
                 ->rows(3)
                 ->columnSpanFull(),
-
-            Textarea::make('caption')
-                ->label('Bijschrift')
-                ->columnSpanFull(),
         ]);
     }
 }
