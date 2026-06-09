@@ -83,4 +83,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(ContentReview::class, 'admin_id');
     }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function commentTemplates(): HasMany
+    {
+        return $this->hasMany(CommentTemplate::class, 'created_by');
+    }
 }

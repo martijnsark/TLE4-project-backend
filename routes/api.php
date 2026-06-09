@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\MemeController;
 use App\Http\Controllers\Api\ArticleSourceController;
 use App\Http\Controllers\Api\SourceController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\CommentTemplateController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -23,6 +25,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::get('memes', [MemeController::class, 'index']);
 Route::get('memes/{meme}', [MemeController::class, 'show']);
+
+// comment templates for everyone, only active templates
+Route::get('comment-templates', [CommentTemplateController::class, 'index']);
+
+Route::get('articles/{article}/comments', [CommentController::class, 'articleIndex']);
+Route::get('memes/{meme}/comments', [CommentController::class, 'memeIndex']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -37,6 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/update-account', [AuthController::class, 'updateAccount']);
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
+    // comment routes for authenticated users
+    Route::post('articles/{article}/comments', [CommentController::class, 'articleStore']);
+    Route::post('memes/{meme}/comments', [CommentController::class, 'memeStore']);
+    Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
     Route::get('/me/tags', [TagController::class, 'myTags']);
     Route::put('/me/tags', [TagController::class, 'updateMyTags']);
 });
@@ -68,6 +80,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('sources/{source}', [SourceController::class, 'destroy']);
     Route::patch('memes/{meme}', [MemeController::class, 'update']);
     Route::delete('memes/{meme}', [MemeController::class, 'destroy']);
+    // comment template management for admins
+    Route::post('comment-templates', [CommentTemplateController::class, 'store']);
+    Route::patch('comment-templates/{commentTemplate}', [CommentTemplateController::class, 'update']);
+    Route::delete('comment-templates/{commentTemplate}', [CommentTemplateController::class, 'destroy']);
 });
 
 // polls for everyone
