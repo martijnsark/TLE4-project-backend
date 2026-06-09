@@ -104,7 +104,7 @@ class AuthController extends Controller
             'user' => $user->load('savedArticles'),
         ]);
     }
-
+    // update account details, can update name, email and password seperately, but username is required when updating email or password (for unique validation)
     public function updateAccount(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -125,15 +125,18 @@ class AuthController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'password' => ['sometimes', 'required', 'string', 'min:8', 'confirmed'],
+            'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         $data = $request->only([
             'username',
             'name',
             'email',
-            'password',
         ]);
+
+        if ($request->filled('password')) {
+            $data['password'] = $request->password;
+        }
 
         $user->update($data);
 

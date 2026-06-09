@@ -28,6 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     // account route for displaying saved articles
     Route::get('/account', [AuthController::class, 'account']);
+    //edit account details route, can update name and email
+    Route::patch('/account', [AuthController::class, 'updateAccount']);
     // post route to save articles inside "saved_articles" table
     Route::post('/account/articles/{article}/save', [AuthController::class, 'saveArticle']);
     // delete route to remove article from saved articles of user
