@@ -32,11 +32,11 @@ class ArticleForm
                 ->schema([
                     Textarea::make('value')
                         ->label('Paragraaf')
-                        ->required()
                         ->rows(3),
                 ])
                 ->reorderable()
-                ->defaultItems(1)
+                ->defaultItems(0)
+                ->addActionLabel('Paragraaf toevoegen')
                 ->columnSpanFull(),
 
             FileUpload::make('image_url')

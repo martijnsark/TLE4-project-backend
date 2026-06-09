@@ -168,6 +168,20 @@ it('skips CTA in the api shape when title is empty', function () {
         ->assertJsonPath('data.0.actions', []);
 });
 
+it('saves a status-only change on an existing article without body_paragraphs', function () {
+    $article = Article::factory()->create([
+        'status'          => 'draft',
+        'body_paragraphs' => null,
+    ]);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm(['status' => 'active'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->fresh()->status)->toBe('active');
+});
+
 it('deletes an article via the edit-page header action', function () {
     $article = Article::factory()->create();
 

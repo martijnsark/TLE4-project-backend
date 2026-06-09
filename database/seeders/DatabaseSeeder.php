@@ -77,8 +77,8 @@ class DatabaseSeeder extends Seeder
             'summary'          => 'Een kort en helder artikel over hoe jongeren naar klimaatproblemen kijken.',
             'content'          => 'Veel jongvolwassenen willen duurzamer leven, maar weten niet altijd waar ze moeten beginnen.',
             'body_paragraphs'  => [
-                'Veel jongvolwassenen willen duurzamer leven, maar weten niet altijd waar ze moeten beginnen.',
-                'Kleine keuzes zoals minder voedsel verspillen, vaker fietsen en bewuster kopen kunnen samen veel verschil maken.',
+                ['value' => 'Veel jongvolwassenen willen duurzamer leven, maar weten niet altijd waar ze moeten beginnen.'],
+                ['value' => 'Kleine keuzes zoals minder voedsel verspillen, vaker fietsen en bewuster kopen kunnen samen veel verschil maken.'],
             ],
             'image_url'        => 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1',
             'original_url'     => 'https://example.com/klimaat-jongeren',
