@@ -2,6 +2,7 @@
 
 use App\Models\Article;
 use App\Models\Reaction;
+use App\Models\Source;
 use App\Models\Tag;
 use App\Models\User;
 
@@ -119,4 +120,27 @@ it('returns correct reaction counts grouped by smile/meh/frown', function () {
         ->assertJsonPath('data.0.reactions.smile', 1)
         ->assertJsonPath('data.0.reactions.meh', 1)
         ->assertJsonPath('data.0.reactions.frown', 0);
+});
+
+it('exposes attached sources with label and sub in the article shape', function () {
+    $article = Article::factory()->create(['status' => 'active']);
+    $source  = Source::factory()->create(['name' => 'NOS']);
+
+    $article->sources()->attach($source->id, [
+        'source_url' => 'https://nos.nl/klimaat',
+        'is_primary' => true,
+    ]);
+
+    $this->getJson('/api/articles')
+        ->assertOk()
+        ->assertJsonPath('data.0.sources.0.label', 'NOS')
+        ->assertJsonPath('data.0.sources.0.sub', 'https://nos.nl/klimaat');
+});
+
+it('returns an empty sources array when no sources are attached', function () {
+    Article::factory()->create(['status' => 'active']);
+
+    $this->getJson('/api/articles')
+        ->assertOk()
+        ->assertJsonPath('data.0.sources', []);
 });
