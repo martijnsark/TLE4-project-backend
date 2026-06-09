@@ -16,6 +16,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class SourceRelationManager extends RelationManager
 {
@@ -24,6 +25,18 @@ class SourceRelationManager extends RelationManager
     protected static ?string $title = 'Bronnen';
 
     protected static string|BackedEnum|null $icon = Heroicon::OutlinedLink;
+
+    public static function getBadge(Model $ownerRecord, string $pageClass): ?string
+    {
+        $count = $ownerRecord->sources()->count();
+
+        return $count === 0 ? 'Ontbreekt' : (string) $count;
+    }
+
+    public static function getBadgeColor(Model $ownerRecord, string $pageClass): ?string
+    {
+        return $ownerRecord->sources()->count() === 0 ? 'danger' : 'success';
+    }
 
     public function form(Schema $schema): Schema
     {

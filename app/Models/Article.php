@@ -86,4 +86,20 @@ class Article extends Model
     {
         return $this->belongsToMany(User::class, 'saved_articles')->withPivot('saved_at');
     }
+
+    public function pruneEmptyCallToAction(): void
+    {
+        $cta = $this->callToAction()->first();
+
+        if (! $cta) {
+            return;
+        }
+
+        $hasContent = collect([$cta->title, $cta->context_text, $cta->goal_text, $cta->target_url])
+            ->some(fn ($value) => filled($value));
+
+        if (! $hasContent) {
+            $cta->delete();
+        }
+    }
 }

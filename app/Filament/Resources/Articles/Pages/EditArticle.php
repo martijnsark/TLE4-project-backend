@@ -22,6 +22,11 @@ class EditArticle extends EditRecord
         ];
     }
 
+    protected function afterSave(): void
+    {
+        $this->record->pruneEmptyCallToAction();
+    }
+
     public function getFormContentComponent(): Component
     {
         return Form::make([EmbeddedSchema::make('form')])

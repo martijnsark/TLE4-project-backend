@@ -113,6 +113,47 @@ it('creates a CTA inline when filling the call-to-action section', function () {
         ->and($article->callToAction->title)->toBe('Doe mee');
 });
 
+it('prunes empty CTA after create so no orphan row stays in db', function () {
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title'           => 'Zonder CTA',
+            'summary'         => 'samenvatting',
+            'body_paragraphs' => [['value' => 'p']],
+            'original_url'    => 'https://example.com/cta-leeg',
+            'tone'            => 'Live',
+            'status'          => 'draft',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $article = Article::latest()->first();
+
+    expect($article->callToAction()->exists())->toBeFalse();
+});
+
+it('prunes CTA after edit when all fields are cleared', function () {
+    $article = Article::factory()->create();
+    $article->callToAction()->create([
+        'title'      => 'Doe mee',
+        'goal_text'  => 'Help',
+        'target_url' => 'https://example.com',
+    ]);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm([
+            'callToAction' => [
+                'title'        => null,
+                'context_text' => null,
+                'goal_text'    => null,
+                'target_url'   => null,
+            ],
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->fresh()->callToAction()->exists())->toBeFalse();
+});
+
 it('skips CTA in the api shape when title is empty', function () {
     $article = Article::factory()->create(['status' => 'active']);
     $article->callToAction()->create([
