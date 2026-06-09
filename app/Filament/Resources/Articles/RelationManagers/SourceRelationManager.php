@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\Articles\RelationManagers;
 
 use BackedEnum;
-use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DetachAction;
-use Filament\Actions\DetachBulkAction;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -27,9 +28,27 @@ class SourceRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('source_url')
-                ->label('Bron-URL')
+            TextInput::make('name')
+                ->label('Naam bron')
+                ->required()
+                ->maxLength(255),
+
+            TextInput::make('url')
+                ->label('Hoofd-URL bron')
                 ->url()
+                ->required()
+                ->maxLength(255),
+
+            TextInput::make('reliability_score')
+                ->label('Betrouwbaarheid (1-100)')
+                ->numeric()
+                ->minValue(1)
+                ->maxValue(100),
+
+            TextInput::make('source_url')
+                ->label('Bron-URL voor dit artikel')
+                ->url()
+                ->required()
                 ->maxLength(500),
 
             Toggle::make('is_primary')
@@ -51,24 +70,17 @@ class SourceRelationManager extends RelationManager
                     ->label('Primair')
                     ->boolean(),
             ])
-            ->toolbarActions([
-                AttachAction::make()
-                    ->preloadRecordSelect()
-                    ->schema(fn (AttachAction $action): array => [
-                        $action->getRecordSelect(),
-                        TextInput::make('source_url')
-                            ->label('Bron-URL')
-                            ->url()
-                            ->maxLength(500),
-                        Toggle::make('is_primary')
-                            ->label('Primaire bron'),
-                    ]),
-                BulkActionGroup::make([
-                    DetachBulkAction::make(),
-                ]),
+            ->headerActions([
+                CreateAction::make(),
             ])
             ->recordActions([
-                DetachAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }
