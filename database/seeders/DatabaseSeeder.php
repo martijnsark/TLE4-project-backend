@@ -44,15 +44,18 @@ class DatabaseSeeder extends Seeder
         );
 
         $tags = collect([
-            ['name' => 'Klimaat', 'category' => 'natuur'],
-            ['name' => 'Politiek', 'category' => 'maatschappij'],
-            ['name' => 'Technologie', 'category' => 'innovatie'],
-            ['name' => 'Gezondheid', 'category' => 'maatschappij'],
-            ['name' => 'Economie', 'category' => 'maatschappij'],
-            ['name' => 'Sport', 'category' => 'cultuur'],
+            ['name' => 'happy', 'category' => 'happy'],
+            ['name' => 'Politiek', 'category' => 'politiek'],
+            ['name' => 'Buitenland', 'category' => 'buitenland'],
+            ['name' => 'Economie', 'category' => 'economie'],
+            ['name' => 'Sport', 'category' => 'sport'],
+            ['name' => 'Natuur', 'category' => 'natuur'],
+            ['name' => 'Innovatie', 'category' => 'innovatie'],
+            ['name' => 'Kunst', 'category' => 'kunst'],
+            ['name' => 'Lokaal', 'category' => 'lokaal'],
         ])->map(fn ($tag) => Tag::firstOrCreate(['name' => $tag['name']], $tag));
 
-        $user->interestTags()->sync($tags->whereIn('name', ['Klimaat', 'Technologie', 'Gezondheid'])->pluck('id'));
+        $user->interestTags()->sync($tags->whereIn('name', ['Politiek', 'Innovatie', 'Natuur'])->pluck('id'));
 
         $nos = Source::firstOrCreate(
             ['name' => 'NOS'],
@@ -101,7 +104,7 @@ class DatabaseSeeder extends Seeder
             'published_at' => now()->subDays(1),
         ]);
 
-        $article->tags()->sync($tags->whereIn('name', ['Klimaat', 'Politiek'])->pluck('id'));
+        $article->tags()->sync($tags->whereIn('name', ['Politiek', 'Natuur'])->pluck('id'));
         $article->sources()->syncWithoutDetaching([
             $nos->id => [
                 'source_url' => 'https://nos.nl/example-klimaat',
