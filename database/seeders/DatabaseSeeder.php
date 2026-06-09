@@ -3,11 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Article;
-use App\Models\Category;
 use App\Models\ArticleView;
 use App\Models\CallToAction;
-use App\Models\ContentReview;
-use App\Models\GeneratedContent;
 use App\Models\Meme;
 use App\Models\MemeView;
 use App\Models\Poll;
@@ -24,10 +21,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(CategorySeeder::class);
-
-        $klimaatCategory = Category::where('name', 'Klimaat')->first();
-
         $admin = User::updateOrCreate(
             ['email' => 'admin@impakt.test'],
             [
@@ -50,18 +43,25 @@ class DatabaseSeeder extends Seeder
 
         // updated tags based on feedback from Milan + added happy tag
         $tags = collect([
-            ['name' => 'happy', 'category' => 'happy'],
-            ['name' => 'Politiek', 'category' => 'politiek'],
-            ['name' => 'Buitenland', 'category' => 'buitenland'],
-            ['name' => 'Economie', 'category' => 'economie'],
-            ['name' => 'Sport', 'category' => 'sport'],
-            ['name' => 'Natuur', 'category' => 'natuur'],
-            ['name' => 'Innovatie', 'category' => 'innovatie'],
-            ['name' => 'Kunst', 'category' => 'kunst'],
-            ['name' => 'Lokaal', 'category' => 'lokaal'],
+            // navigation tags — de 6 RN-mock categorieën
+            ['name' => 'Voor jou',   'category' => 'navigation'],
+            ['name' => 'Klimaat',    'category' => 'navigation'],
+            ['name' => 'Politiek',   'category' => 'navigation'],
+            ['name' => 'Sport',      'category' => 'navigation'],
+            ['name' => 'Tech',       'category' => 'navigation'],
+            ['name' => 'Wereld',     'category' => 'navigation'],
+            // topic tags
+            ['name' => 'Technologie', 'category' => 'topic'],
+            ['name' => 'Gezondheid',  'category' => 'topic'],
+            ['name' => 'Economie',    'category' => 'topic'],
+            // flag tags
+            ['name' => 'Goed nieuws', 'category' => 'flag'],
+            ['name' => 'Trending',    'category' => 'flag'],
         ])->map(fn ($tag) => Tag::firstOrCreate(['name' => $tag['name']], $tag));
 
         $user->interestTags()->sync($tags->whereIn('name', ['Politiek', 'Innovatie', 'Natuur'])->pluck('id'));
+
+        $klimaatTag = $tags->firstWhere('name', 'Klimaat');
 
         $nos = Source::firstOrCreate(
             ['name' => 'NOS'],
@@ -86,9 +86,6 @@ class DatabaseSeeder extends Seeder
             'tone'             => 'Achtergrond',
             'status'           => 'active',
             'author_id'        => $admin->id,
-            'category_id'      => $klimaatCategory?->id,
-            'is_good_news'     => false,
-            'is_trending'      => true,
             'published_at'     => now(),
         ]);
 
@@ -117,7 +114,13 @@ class DatabaseSeeder extends Seeder
             'published_at' => now()->subDays(1),
         ]);
 
-        $article->tags()->sync($tags->whereIn('name', ['Politiek', 'Natuur'])->pluck('id'));
+        $politiekTag  = $tags->firstWhere('name', 'Politiek');
+        $trendingTag  = $tags->firstWhere('name', 'Trending');
+        $article->tags()->sync([
+            $klimaatTag->id  => ['is_primary' => true],
+            $politiekTag->id => ['is_primary' => false],
+            $trendingTag->id => ['is_primary' => false],
+        ]);
         $article->sources()->syncWithoutDetaching([
             $nos->id => [
                 'source_url' => 'https://nos.nl/example-klimaat',
@@ -167,7 +170,7 @@ class DatabaseSeeder extends Seeder
         Reaction::create([
             'user_id' => $user->id,
             'article_id' => $article->id,
-            'reaction' => 'happy',
+            'reaction' => 'smile',
         ]);
 
         $user->savedArticles()->syncWithoutDetaching([
@@ -199,20 +202,5 @@ class DatabaseSeeder extends Seeder
             'viewing_time_seconds' => 8,
         ]);
 
-        $generatedContent = GeneratedContent::create([
-            'admin_id' => $admin->id,
-            'title' => 'AI concept: Waarom lokale initiatieven steeds populairder worden',
-            'generated_text' => 'Concepttekst die eerst door een admin beoordeeld moet worden voordat deze live gaat.',
-            'original_news_url' => 'https://example.com/lokale-initiatieven',
-            'status' => 'draft',
-        ]);
-
-        ContentReview::create([
-            'generated_content_id' => $generatedContent->id,
-            'admin_id' => $admin->id,
-            'feedback' => 'Goede basis, maar voeg nog betrouwbare bronnen en een lichtere toon toe.',
-            'approved' => false,
-            'reviewed_at' => now(),
-        ]);
     }
 }

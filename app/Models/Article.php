@@ -15,15 +15,12 @@ class Article extends Model
 
     protected $fillable = [
         'title', 'summary', 'content', 'image_url', 'original_url',
-        'tone', 'status', 'author_id', 'category_id', 'published_at',
-        'is_good_news', 'is_trending', 'body_paragraphs',
+        'tone', 'status', 'author_id', 'published_at', 'body_paragraphs',
     ];
 
     protected $casts = [
         'published_at'    => 'datetime',
         'body_paragraphs' => 'array',
-        'is_good_news'    => 'boolean',
-        'is_trending'     => 'boolean',
     ];
 
     public function author(): BelongsTo
@@ -31,14 +28,26 @@ class Article extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
-
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'article_tags')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'article_tags')
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+    public function primaryTag(): ?Tag
+    {
+        return $this->tags->firstWhere('pivot.is_primary', true);
+    }
+
+    public function getIsGoodNewsAttribute(): bool
+    {
+        return $this->tags->contains(fn ($t) => $t->name === 'Goed nieuws');
+    }
+
+    public function getIsTrendingAttribute(): bool
+    {
+        return $this->tags->contains(fn ($t) => $t->name === 'Trending');
     }
 
     public function sources(): BelongsToMany

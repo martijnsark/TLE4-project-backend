@@ -81,13 +81,4 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(MemeView::class);
     }
 
-    public function generatedContents(): HasMany
-    {
-        return $this->hasMany(GeneratedContent::class, 'admin_id');
-    }
-
-    public function contentReviews(): HasMany
-    {
-        return $this->hasMany(ContentReview::class, 'admin_id');
-    }
 }
