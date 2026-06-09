@@ -17,6 +17,33 @@ class ArticleForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
+            Section::make('Publicatie')
+                ->description('Bepaalt of en wanneer dit artikel zichtbaar is in de app.')
+                ->columns(3)
+                ->schema([
+                    Select::make('status')
+                        ->label('Status')
+                        ->options([
+                            'draft'    => 'Concept',
+                            'inactive' => 'Inactief',
+                            'active'   => 'Actief',
+                            'archived' => 'Gearchiveerd',
+                        ])
+                        ->required()
+                        ->default('draft')
+                        ->native(false),
+
+                    DateTimePicker::make('published_at')
+                        ->label('Publicatiedatum'),
+
+                    Select::make('author_id')
+                        ->label('Auteur')
+                        ->relationship('author', 'name')
+                        ->searchable()
+                        ->preload(),
+                ])
+                ->columnSpanFull(),
+
             TextInput::make('title')
                 ->required()
                 ->maxLength(255)
@@ -62,26 +89,6 @@ class ArticleForm
                 ])
                 ->required()
                 ->default('Achtergrond'),
-
-            Select::make('status')
-                ->label('Status')
-                ->options([
-                    'draft'    => 'Concept',
-                    'inactive' => 'Inactief',
-                    'active'   => 'Actief',
-                    'archived' => 'Gearchiveerd',
-                ])
-                ->required()
-                ->default('draft'),
-
-            DateTimePicker::make('published_at')
-                ->label('Publicatiedatum'),
-
-            Select::make('author_id')
-                ->label('Auteur')
-                ->relationship('author', 'name')
-                ->searchable()
-                ->preload(),
 
             Select::make('tags')
                 ->label('Tags')
