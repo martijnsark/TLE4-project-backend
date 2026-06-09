@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Meme;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,11 +70,11 @@ class AuthController extends Controller
         ]);
     }
 
-    // account function (displays saved articles by user)
+    // account function (displays saved articles and memes by user)
     public function account(Request $request): JsonResponse
     {
         return response()->json([
-            'user' => $request->user()->load('savedArticles'),
+            'user' => $request->user()->load(['savedArticles', 'savedMemes']),
         ]);
     }
 
@@ -102,6 +103,34 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Article removed successfully',
             'user' => $user->load('savedArticles'),
+        ]);
+    }
+
+    // save meme inside of "saved_memes" table (seperate per user)
+    public function saveMeme(Request $request, Meme $meme): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->savedMemes()->syncWithoutDetaching([
+            $meme->id => ['saved_at' => now()],
+        ]);
+
+        return response()->json([
+            'message' => 'Meme saved successfully',
+            'user' => $user->load('savedMemes'),
+        ]);
+    }
+
+    // remove meme inside of "saved_memes" table (seperate per user)
+    public function removeSavedMeme(Request $request, Meme $meme): JsonResponse
+    {
+        $user = $request->user();
+
+        $user->savedMemes()->detach($meme->id);
+
+        return response()->json([
+            'message' => 'Meme removed successfully',
+            'user' => $user->load('savedMemes'),
         ]);
     }
     // update account details, can update name, email and password seperately, but username is required when updating email or password (for unique validation)
