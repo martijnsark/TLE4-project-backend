@@ -41,7 +41,7 @@ erDiagram
     SOURCES ||--o{ ARTICLE_SOURCES : referenced_by
 
     ARTICLES ||--o| CALL_TO_ACTIONS : has
-    ARTICLES ||--o{ REACTIONS : receives
+    ARTICLES ||--o{ REACTIONS : "receives polymorphic"
     ARTICLES ||--o{ POLLS : contains
     ARTICLES o|--o{ MEMES : generates
     ARTICLES ||--o{ ARTICLE_VIEWS : viewed_in
@@ -49,6 +49,7 @@ erDiagram
 
     MEMES ||--o{ MEME_VIEWS : viewed_in
     MEMES ||--o{ SAVED_MEMES : saved_in
+    MEMES ||--o{ REACTIONS : "receives polymorphic"
 
     POLLS ||--o{ POLL_OPTIONS : options
     POLLS ||--o{ POLL_VOTES : receives
@@ -134,7 +135,8 @@ erDiagram
     REACTIONS {
       integer id PK
       integer user_id FK
-      integer article_id FK
+      integer reactionable_id
+      string reactionable_type
       string reaction
       datetime created_at
       datetime updated_at

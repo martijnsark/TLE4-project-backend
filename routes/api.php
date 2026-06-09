@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\MemeController;
 use App\Http\Controllers\Api\ArticleSourceController;
 use App\Http\Controllers\Api\SourceController;
+use App\Http\Controllers\Api\ReactionController;
+
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -23,6 +25,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::get('memes', [MemeController::class, 'index']);
 Route::get('memes/{meme}', [MemeController::class, 'show']);
+Route::get('articles/{article}/reactions', [ReactionController::class, 'articleIndex']);
+Route::get('memes/{meme}/reactions', [ReactionController::class, 'memeIndex']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -37,6 +41,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
     Route::get('/me/tags', [TagController::class, 'myTags']);
     Route::put('/me/tags', [TagController::class, 'updateMyTags']);
+    // reactions for articles and memes
+    Route::post('articles/{article}/reaction', [ReactionController::class, 'articleStore']);
+    Route::delete('articles/{article}/reaction', [ReactionController::class, 'articleDestroy']);
+
+    Route::post('memes/{meme}/reaction', [ReactionController::class, 'memeStore']);
+    Route::delete('memes/{meme}/reaction', [ReactionController::class, 'memeDestroy']);
 });
 
 //articles

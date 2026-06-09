@@ -148,9 +148,8 @@ class DatabaseSeeder extends Seeder
             'voted_at' => now(),
         ]);
 
-        Reaction::create([
+        $article->reactions()->create([
             'user_id' => $user->id,
-            'article_id' => $article->id,
             'reaction' => 'happy',
         ]);
 
