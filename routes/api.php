@@ -40,6 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 //articles
+// happy feed route displays articles with the happy tag
+Route::get('happy-feed', [ArticleController::class, 'happyFeed']);
 Route::get('articles', [ArticleController::class, 'index']);
 Route::get('articles/{article}', [ArticleController::class, 'show']);
 Route::get('articles/{article}/sources', [ArticleController::class, 'sources']);
