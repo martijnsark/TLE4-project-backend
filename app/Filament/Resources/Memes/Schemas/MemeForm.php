@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Memes\Schemas;
 
+use App\Models\Tag;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -42,9 +43,15 @@ class MemeForm
                 ->label('Auteursnaam')
                 ->maxLength(100),
 
-            TextInput::make('cat')
-                ->label('Categorie (UPPERCASE)')
-                ->maxLength(50),
+            Select::make('cat')
+                ->label('Categorie')
+                ->options(fn () => Tag::where('category', 'navigation')
+                    ->pluck('name', 'name')
+                    ->mapWithKeys(fn ($label, $key) => [strtoupper($key) => $label])
+                    ->all())
+                ->searchable()
+                ->nullable()
+                ->helperText('Gebaseerd op de navigation-tags. Opgeslagen als UPPERCASE.'),
 
             Textarea::make('top')
                 ->label('Bovenste tekst')
