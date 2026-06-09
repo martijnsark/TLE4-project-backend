@@ -5,8 +5,6 @@ namespace App\Filament\Resources\Articles;
 use App\Filament\Resources\Articles\Pages\CreateArticle;
 use App\Filament\Resources\Articles\Pages\EditArticle;
 use App\Filament\Resources\Articles\Pages\ListArticles;
-use App\Filament\Resources\Articles\RelationManagers\CallToActionRelationManager;
-use App\Filament\Resources\Articles\RelationManagers\PollRelationManager;
 use App\Filament\Resources\Articles\RelationManagers\SourceRelationManager;
 use App\Filament\Resources\Articles\Schemas\ArticleForm;
 use App\Filament\Resources\Articles\Tables\ArticlesTable;
@@ -36,8 +34,6 @@ class ArticleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            CallToActionRelationManager::class,
-            PollRelationManager::class,
             SourceRelationManager::class,
         ];
     }

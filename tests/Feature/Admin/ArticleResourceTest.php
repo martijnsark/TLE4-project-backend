@@ -88,6 +88,45 @@ it('persists the selected author when creating an article', function () {
     expect(Article::latest()->first()->author_id)->toBe($author->id);
 });
 
+it('creates a CTA inline when filling the call-to-action section', function () {
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title'           => 'Met CTA',
+            'summary'         => 'samenvatting',
+            'body_paragraphs' => [['value' => 'p']],
+            'original_url'    => 'https://example.com/cta',
+            'tone'            => 'Live',
+            'status'          => 'draft',
+            'callToAction'    => [
+                'title'      => 'Doe mee',
+                'target_url' => 'https://example.com/doe-mee',
+                'goal_text'  => 'Help mee aan dit doel.',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $article = Article::latest()->first();
+
+    expect($article->callToAction)
+        ->not->toBeNull()
+        ->and($article->callToAction->title)->toBe('Doe mee');
+});
+
+it('skips CTA in the api shape when title is empty', function () {
+    $article = Article::factory()->create(['status' => 'active']);
+    $article->callToAction()->create([
+        'title'        => null,
+        'context_text' => null,
+        'goal_text'    => null,
+        'target_url'   => null,
+    ]);
+
+    $this->getJson('/api/articles')
+        ->assertOk()
+        ->assertJsonPath('data.0.actions', []);
+});
+
 it('deletes an article via the edit-page header action', function () {
     $article = Article::factory()->create();
 

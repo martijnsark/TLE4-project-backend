@@ -44,10 +44,12 @@ class ArticleResource extends JsonResource
                     'votes' => $option->votes->count(),
                 ])->values()->toArray(),
             ] : null,
-            'actions' => $this->callToAction ? [[
-                'label' => $this->callToAction->title,
-                'sub'   => $this->callToAction->goal_text,
-            ]] : [],
+            'actions' => ($this->callToAction && filled($this->callToAction->title))
+                ? [[
+                    'label' => $this->callToAction->title,
+                    'sub'   => $this->callToAction->goal_text,
+                ]]
+                : [],
             'sources' => $this->sources->map(fn ($source) => [
                 'label' => $source->name,
                 'sub'   => $source->pivot->source_url ?? $source->url,

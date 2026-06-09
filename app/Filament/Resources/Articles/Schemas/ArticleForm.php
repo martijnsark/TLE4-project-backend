@@ -8,6 +8,8 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ArticleForm
@@ -87,6 +89,65 @@ class ArticleForm
                 ->relationship('tags', 'name')
                 ->searchable()
                 ->preload()
+                ->columnSpanFull(),
+
+            Section::make('Call to Action')
+                ->description('Optionele knop onderaan het artikel.')
+                ->relationship('callToAction')
+                ->schema([
+                    TextInput::make('title')
+                        ->label('Titel CTA')
+                        ->maxLength(255),
+                    TextInput::make('target_url')
+                        ->label('Doel-URL')
+                        ->url()
+                        ->maxLength(500),
+                    Textarea::make('context_text')
+                        ->label('Context')
+                        ->rows(2)
+                        ->columnSpanFull(),
+                    Textarea::make('goal_text')
+                        ->label('Doel-tekst')
+                        ->rows(2)
+                        ->columnSpanFull(),
+                ])
+                ->collapsible()
+                ->collapsed()
+                ->columnSpanFull(),
+
+            Section::make('Poll')
+                ->description('Maximaal één poll per artikel.')
+                ->schema([
+                    Repeater::make('polls')
+                        ->relationship('polls')
+                        ->hiddenLabel()
+                        ->schema([
+                            TextInput::make('question')
+                                ->label('Vraag')
+                                ->required()
+                                ->maxLength(255)
+                                ->columnSpanFull(),
+
+                            Repeater::make('options')
+                                ->relationship('options')
+                                ->label('Antwoorden')
+                                ->schema([
+                                    TextInput::make('option_text')
+                                        ->label('Antwoord')
+                                        ->required()
+                                        ->maxLength(255),
+                                ])
+                                ->defaultItems(2)
+                                ->minItems(2)
+                                ->reorderable()
+                                ->columnSpanFull(),
+                        ])
+                        ->defaultItems(0)
+                        ->maxItems(1)
+                        ->addActionLabel('Poll toevoegen'),
+                ])
+                ->collapsible()
+                ->collapsed()
                 ->columnSpanFull(),
         ]);
     }
