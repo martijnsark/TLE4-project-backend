@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 
 // import home controller
 use App\Http\Controllers\Api\HomePageController;
+use App\Http\Controllers\Api\MemeViewController;
 use App\Http\Controllers\Api\PollController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
@@ -23,6 +24,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::get('memes', [MemeController::class, 'index']);
 Route::get('memes/{meme}', [MemeController::class, 'show']);
+
+//memes
+Route::post('meme-views', [MemeViewController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
