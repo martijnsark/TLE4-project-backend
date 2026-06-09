@@ -2,12 +2,15 @@
 
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
+
 // import home controller
 use App\Http\Controllers\Api\HomePageController;
+use App\Http\Controllers\Api\PollController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\Api\CallToActionController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\MemeController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -16,6 +19,8 @@ Route::post('/login', [AuthController::class, 'login']);
 // retired home rout + home function (GET method)
 // Route::get('/home', [HomePageController::class, 'home']);
 Route::get('/tags', [TagController::class, 'index']);
+Route::get('memes', [MemeController::class, 'index']);
+Route::get('memes/{meme}', [MemeController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -32,6 +37,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/me/tags', [TagController::class, 'updateMyTags']);
 });
 
+//articles
+// happy feed route displays articles with the happy tag
+Route::get('happy-feed', [ArticleController::class, 'happyFeed']);
 Route::get('articles', [ArticleController::class, 'index']);
 Route::get('articles/{article}', [ArticleController::class, 'show']);
 
@@ -44,4 +52,33 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('articles/{article}/cta', [CallToActionController::class, 'store']);
     Route::patch('articles/{article}/cta', [CallToActionController::class, 'update']);
     Route::delete('articles/{article}/cta', [CallToActionController::class, 'destroy']);
+    Route::post('articles/{article}/memes', [MemeController::class, 'store']);
+    Route::patch('memes/{meme}', [MemeController::class, 'update']);
+    Route::delete('memes/{meme}', [MemeController::class, 'destroy']);
+});
+
+// polls for everyone
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('polls', [PollController::class, 'index']);
+    Route::get('polls/{poll}', [PollController::class, 'show']);
+    Route::get('polls/{poll}/results', [PollController::class, 'results']);
+    Route::get('poll-options', [App\Http\Controllers\Api\PollOptionController::class, 'index']);
+    Route::post('poll-votes', [App\Http\Controllers\Api\PollVoteController::class, 'store']);
+    Route::delete('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'destroy']);
+});
+
+
+// admin only
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::post('polls', [PollController::class, 'store']);
+    Route::put('polls/{poll}', [PollController::class, 'update']);
+    Route::patch('polls/{poll}', [PollController::class, 'update']);
+    Route::delete('polls/{poll}', [PollController::class, 'destroy']);
+    Route::post('poll-options', [App\Http\Controllers\Api\PollOptionController::class, 'store']);
+    Route::put('poll-options/{pollOption}', [App\Http\Controllers\Api\PollOptionController::class, 'update']);
+    Route::patch('poll-options/{pollOption}', [App\Http\Controllers\Api\PollOptionController::class, 'update']);
+    Route::delete('poll-options/{pollOption}', [App\Http\Controllers\Api\PollOptionController::class, 'destroy']);
+    Route::get('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'show']);
+    Route::put('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'update']);
+    Route::patch('poll-votes/{pollVote}', [App\Http\Controllers\Api\PollVoteController::class, 'update']);
 });
