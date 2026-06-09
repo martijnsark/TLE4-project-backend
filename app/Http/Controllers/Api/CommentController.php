@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    // List comments for a given commentable (Article or Meme)
     private function listComments(Model $commentable): JsonResponse
     {
         $comments = $commentable->comments()
@@ -21,7 +22,7 @@ class CommentController extends Controller
 
         return response()->json($comments);
     }
-
+    // Store a new comment for a given commentable (Article or Meme)
     private function storeComment(Request $request, Model $commentable): JsonResponse
     {
         $validated = $request->validate([
@@ -48,7 +49,7 @@ class CommentController extends Controller
             'comment' => $comment->load(['user:id,username,name', 'template:id,text']),
         ], 201);
     }
-
+    // Public methods for handling comments on Articles and Memes
     public function articleIndex(Article $article): JsonResponse
     {
         return $this->listComments($article);
@@ -68,7 +69,7 @@ class CommentController extends Controller
     {
         return $this->storeComment($request, $meme);
     }
-
+    // Delete a comment, only allowed for the comment owner or an admin
     public function destroy(Request $request, \App\Models\Comment $comment): JsonResponse
     {
         if ($comment->user_id !== $request->user()->id && $request->user()->role !== 'admin') {
