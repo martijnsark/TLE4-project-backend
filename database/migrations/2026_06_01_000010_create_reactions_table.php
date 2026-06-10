@@ -10,12 +10,15 @@ return new class extends Migration
     {
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('article_id')->constrained()->cascadeOnDelete();
+
+            $table->morphs('reactionable');
+
             $table->enum('reaction', ['happy', 'shocked', 'sad']);
             $table->timestamps();
 
-            $table->unique(['user_id', 'article_id']);
+            $table->unique(['user_id', 'reactionable_id', 'reactionable_type']);
         });
     }
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 
 // import home controller
 use App\Http\Controllers\Api\HomePageController;
+use App\Http\Controllers\Api\MemeViewController;
 use App\Http\Controllers\Api\PollController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminMiddleware;
@@ -13,6 +14,8 @@ use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\MemeController;
 use App\Http\Controllers\Api\ArticleSourceController;
 use App\Http\Controllers\Api\SourceController;
+use App\Http\Controllers\Api\ReactionController;
+
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -23,6 +26,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::get('memes', [MemeController::class, 'index']);
 Route::get('memes/{meme}', [MemeController::class, 'show']);
+Route::get('articles/{article}/reactions', [ReactionController::class, 'articleIndex']);
+Route::get('memes/{meme}/reactions', [ReactionController::class, 'memeIndex']);
+
+//memes
+Route::post('meme-views', [MemeViewController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -34,11 +42,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/account/articles/{article}/save', [AuthController::class, 'saveArticle']);
     // delete route to remove article from saved articles of user
     Route::delete('/account/articles/{article}/save', [AuthController::class, 'removeSavedArticle']);
+    // post route to save memes inside "saved_memes" table
+    Route::post('/account/memes/{meme}/save', [AuthController::class, 'saveMeme']);
+    // delete route to remove meme from saved memes of user
+    Route::delete('/account/memes/{meme}/save', [AuthController::class, 'removeSavedMeme']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/update-account', [AuthController::class, 'updateAccount']);
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
     Route::get('/me/tags', [TagController::class, 'myTags']);
     Route::put('/me/tags', [TagController::class, 'updateMyTags']);
+    // reactions for articles and memes
+    Route::get('articles/{article}/my-reaction', [ReactionController::class, 'articleMyReaction']);
+    Route::get('memes/{meme}/my-reaction', [ReactionController::class, 'memeMyReaction']);
+
+    Route::post('articles/{article}/reaction', [ReactionController::class, 'articleStore']);
+    Route::delete('articles/{article}/reaction', [ReactionController::class, 'articleDestroy']);
+
+    Route::post('memes/{meme}/reaction', [ReactionController::class, 'memeStore']);
+    Route::delete('memes/{meme}/reaction', [ReactionController::class, 'memeDestroy']);
 });
 
 //articles
@@ -70,9 +91,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 });
 
 // polls for everyone
+Route::get('polls', [PollController::class, 'index']);
+Route::get('polls/{poll}', [PollController::class, 'show']);
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('polls', [PollController::class, 'index']);
-    Route::get('polls/{poll}', [PollController::class, 'show']);
     Route::get('polls/{poll}/results', [PollController::class, 'results']);
     Route::get('poll-options', [App\Http\Controllers\Api\PollOptionController::class, 'index']);
     Route::post('poll-votes', [App\Http\Controllers\Api\PollVoteController::class, 'store']);

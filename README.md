@@ -41,7 +41,7 @@ erDiagram
     SOURCES ||--o{ ARTICLE_SOURCES : referenced_by
 
     ARTICLES ||--o| CALL_TO_ACTIONS : has
-    ARTICLES ||--o{ REACTIONS : receives
+    ARTICLES ||--o{ REACTIONS : "receives polymorphic"
     ARTICLES ||--o{ POLLS : contains
     ARTICLES o|--o{ MEMES : generates
     ARTICLES ||--o{ ARTICLE_VIEWS : viewed_in
@@ -49,6 +49,7 @@ erDiagram
 
     MEMES ||--o{ MEME_VIEWS : viewed_in
     MEMES ||--o{ SAVED_MEMES : saved_in
+    MEMES ||--o{ REACTIONS : "receives polymorphic"
 
     POLLS ||--o{ POLL_OPTIONS : options
     POLLS ||--o{ POLL_VOTES : receives
@@ -134,7 +135,8 @@ erDiagram
     REACTIONS {
       integer id PK
       integer user_id FK
-      integer article_id FK
+      integer reactionable_id
+      string reactionable_type
       string reaction
       datetime created_at
       datetime updated_at
@@ -334,24 +336,55 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Returns: a single meme with its related article
     - Frontend usage: use this when opening a specific meme detail page and use the included `article_id` or `article.id` for the related article button
       <br><br>
+- `GET /api/articles/{article}/sources`
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `GET /api/articles/42/sources`
+    - Returns: array of sources linked to the article
+    - Each source includes the source details and pivot data such as `source_url` and `is_primary`
+    - Frontend usage: use this endpoint to show a source overview under an article, so users can open the original source article
+
+- `GET /api/articles/{article}/reactions`
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `GET /api/articles/42/reactions`
+    - Returns: reaction counts for the article, grouped by reaction type
+    - Frontend usage: use this endpoint to show how users feel about an article
+
+- `GET /api/memes/{meme}/reactions`
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Example request: `GET /api/memes/12/reactions`
+    - Returns: reaction counts for the meme, grouped by reaction type
+    - Frontend usage: use this endpoint to show how users feel about a meme
+
 
 ### private endpoints (original user only)
 
-- `PUT /api/update-account`
-    - Required fields: `username`, `email`, `password`
-    - Optional fields: `name`
+- `PATCH /api/account`
+    - Required fields: none
+    - Optional fields: `username`, `name`, `email`, `password`, `password_confirmation`
     - Auth: required
     - Example request:
       ```json
       {
-        "username": "julia_vermeer",
+        "username": "julia_vermeer_updated",
         "name": "Julia Vermeer",
-        "email": "julia.vermeer.updated@example.com",
+        "email": "julia.vermeer.updated@example.com"
+      }
+      ```
+    - Password is optional. Only include `password` and `password_confirmation` when the user wants to change their password.
+    - Example password update request:
+      ```json
+      {
         "password": "N3wStr0ngPassw0rd!",
         "password_confirmation": "N3wStr0ngPassw0rd!"
       }
       ```
-    - Returns: the updated `user`
+    - Returns: a success `message` and the updated `user`
 - `DELETE /api/delete-account`
     - Required fields: none
     - Optional fields: none
@@ -363,7 +396,7 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Required fields: none
     - Optional fields: none
     - Example request: `GET /api/account`
-    - Returns: the authenticated `user` with `savedArticles` loaded
+    - Returns: the authenticated `user` with `savedArticles` and `savedMemes` loaded
 - `POST /api/account/articles/{article}/save`
     - Auth: required (`Authorization: Bearer <token>`)
     - Required fields: none in the request body
@@ -435,6 +468,76 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Path parameter: `poll` (for example `1`)
     - Example request: `GET /api/polls/7/results`
     - Returns: the poll results summary
+- `POST /api/account/memes/1/save`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+- `Delete /api/account/memes/1/save`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+
+- `GET /api/articles/{article}/my-reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `GET /api/articles/42/my-reaction`
+    - Returns: the authenticated user's reaction for the article, or `null` if the user has not reacted yet
+
+- `GET /api/memes/{meme}/my-reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Example request: `GET /api/memes/12/my-reaction`
+    - Returns: the authenticated user's reaction for the meme, or `null` if the user has not reacted yet
+
+- `POST /api/articles/{article}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: `reaction`
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Allowed reaction values: `happy`, `shocked`, `sad`
+    - Example request:
+      ```json
+      {
+        "reaction": "happy"
+      }
+      ```
+    - Returns: a success `message` and the saved `reaction`
+    - Note: if the user already reacted to this article, the existing reaction is updated
+
+- `DELETE /api/articles/{article}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `DELETE /api/articles/42/reaction`
+    - Returns: a success `message` after removing the authenticated user's reaction from the article
+
+- `POST /api/memes/{meme}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: `reaction`
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Allowed reaction values: `happy`, `shocked`, `sad`
+    - Example request:
+      ```json
+      {
+        "reaction": "shocked"
+      }
+      ```
+    - Returns: a success `message` and the saved `reaction`
+    - Note: if the user already reacted to this meme, the existing reaction is updated
+
+- `DELETE /api/memes/{meme}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Example request: `DELETE /api/memes/12/reaction`
+    - Returns: a success `message` after removing the authenticated user's reaction from the meme
 
 <br><br>
 
@@ -641,6 +744,85 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Path parameter: `pollOption` (for example `31`)
     - Example request: `DELETE /api/poll-options/31`
     - Returns: the deleted poll option record
+
+- `POST /api/sources`
+    - Auth bearer token: required (admin)
+    - Required fields: `name`, `url`
+    - Optional fields: `reliability_score`
+    - Example request:
+      ```json
+      {
+        "name": "NOS",
+        "url": "https://nos.nl",
+        "reliability_score": 90
+      }
+      ```
+    - Returns: a success `message` and the created `source`
+
+- `PATCH /api/sources/{source}`
+    - Auth bearer token: required (admin)
+    - Required fields: none
+    - Optional fields: `name`, `url`, `reliability_score`
+    - Path parameter: `source` (the source ID to update)
+    - Example request:
+      ```json
+      {
+        "reliability_score": 95
+      }
+      ```
+    - Returns: a success `message` and the updated `source`
+
+- `DELETE /api/sources/{source}`
+    - Auth bearer token: required (admin)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `source` (the source ID to delete)
+    - Example request: `DELETE /api/sources/3`
+    - Returns: a success `message` after deleting the source
+
+- `POST /api/articles/{article}/sources`
+    - Auth bearer token: required (admin)
+    - Required fields: `source_id`, `source_url`
+    - Optional fields: `is_primary`
+    - Path parameter: `article` (the article ID the source should be linked to)
+    - Example request:
+      ```json
+      {
+        "source_id": 1,
+        "source_url": "https://nos.nl/artikel/voorbeeld-klimaat",
+        "is_primary": true
+      }
+      ```
+    - Returns: a success `message` and the linked `source`
+    - Note: this links an existing source to an article and stores the original source article URL in the pivot data
+
+- `PATCH /api/articles/{article}/sources/{source}`
+    - Auth bearer token: required (admin)
+    - Required fields: none
+    - Optional fields: `source_url`, `is_primary`
+    - Path parameters:
+        - `article` (the article ID)
+        - `source` (the source ID linked to the article)
+    - Example request:
+      ```json
+      {
+        "source_url": "https://nos.nl/artikel/updated-source-url",
+        "is_primary": false
+      }
+      ```
+    - Returns: a success `message` and the updated linked `source`
+    - Note: this updates the article-source connection, not the source itself
+
+- `DELETE /api/articles/{article}/sources/{source}`
+    - Auth bearer token: required (admin)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameters:
+        - `article` (the article ID)
+        - `source` (the source ID to unlink from the article)
+    - Example request: `DELETE /api/articles/42/sources/3`
+    - Returns: a success `message` after removing the source from the article
+    - Note: this removes only the link between the article and the source, not the source itself
 
 <br><br>
 
