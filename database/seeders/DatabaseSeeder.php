@@ -283,9 +283,9 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
 
         $article3->reactions()->create([
             'user_id' => $user->id,
-            'reaction' => 'smile',
+            'reaction' => 'happy',
         ]);
-      
+
         $poll = Poll::create([
             'article_id' => $article3->id,
             'question' => 'Moeten landen buitenlandse kenniswerkers actief aantrekken?',
