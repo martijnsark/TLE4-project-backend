@@ -67,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('happy-feed', [ArticleController::class, 'happyFeed']);
 Route::get('articles', [ArticleController::class, 'index']);
 Route::get('articles/{article}', [ArticleController::class, 'show']);
+Route::get('articles/{article}/sources', [ArticleController::class, 'sources']);
 Route::get('articles/{article}/sources', [ArticleSourceController::class, 'index']);
 Route::get('sources', [SourceController::class, 'index']);
 

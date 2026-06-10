@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
@@ -28,17 +27,9 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $baseUsername = Str::slug(explode('@', $request->email)[0]);
-        $username = $baseUsername;
-        $i = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $i++;
-        }
-
         $user = User::create([
-            'username' => $username,
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => Hash::make($request->string('password')),
         ]);
 

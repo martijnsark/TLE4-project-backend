@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
 
@@ -20,7 +19,7 @@ class ArticleController extends Controller
         }
 
         $articles = $articles
-            ->with(['tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'memes'])
+            ->with(['tags', 'callToAction', 'memes', 'sources'])
             ->withCount('views');
 
         // Search with title, summary or content
@@ -78,21 +77,22 @@ class ArticleController extends Controller
                 ->orderByDesc('created_at'),
         };
 
-        return ArticleResource::collection($articles->paginate(6));
+        return response()->json($articles->paginate(6));
     }
     //create an article, only the author or admin can create an article
     public function create()
     {
         return response()->json(['message' => 'Create article success']);
     }
-    //store an article, requires title, summary, content, image_url, tone and status, also can include published_at and tags associated with the article, only the author or admin can create an article
+    //store an article, requires title, summary, content, image_url, original_url, tone and status, also can include published_at and tags associated with the article, only the author or admin can create an article
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'required|string',
-            'content' => 'nullable|string',
-            'image_url' => 'required|string',
+            'content' => 'required|string',
+            'image_url' => 'required|url',
+            'original_url' => 'required|url',
             'tone' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'published_at' => 'nullable|date',
@@ -106,6 +106,7 @@ class ArticleController extends Controller
         $article->summary = $request->input('summary');
         $article->content = $request->input('content');
         $article->image_url = $request->input('image_url');
+        $article->original_url = $request->input('original_url');
         $article->tone = $request->input('tone');
         $article->status = $request->input('status');
         $article->published_at = $request->input('published_at');
@@ -133,9 +134,9 @@ class ArticleController extends Controller
             'viewed_at' => now(),
         ]);
 
-        return new ArticleResource(
+        return response()->json(
             $article
-                ->load(['tags', 'callToAction', 'reactions', 'polls.options.votes', 'sources', 'memes'])
+                ->load(['callToAction', 'tags', 'memes', 'sources'])
                 ->loadCount('views')
         );
     }
@@ -147,7 +148,7 @@ class ArticleController extends Controller
         }
         return response()->json(['message' => 'Update article success']);
     }
-    //update an article, only the author or admin can update an article, can update title, summary, content, image_url, tone, status and published_at, also can update the tags associated with the article
+    //update an article, only the author or admin can update an article, can update title, summary, content, image_url, original_url, tone, status and published_at, also can update the tags associated with the article
     public function update(Request $request, Article $article)
     {
         if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
@@ -158,8 +159,9 @@ class ArticleController extends Controller
             'title' => ['sometimes', 'string', 'max:255'],
             'summary' => ['sometimes', 'string'],
             'content' => ['sometimes', 'string'],
-            'image_url' => ['sometimes', 'string'],
-            'tone' => ['sometimes', 'in:Live,Achtergrond,Reportage,Opinie'],
+            'image_url' => ['sometimes', 'url'],
+            'original_url' => ['sometimes', 'url'],
+            'tone' => ['sometimes', 'in:serious,light,humorous'],
             'status' => ['sometimes', 'in:draft,inactive,active,archived'],
             'published_at' => ['sometimes', 'nullable', 'date'],
 
@@ -172,6 +174,7 @@ class ArticleController extends Controller
             'summary',
             'content',
             'image_url',
+            'original_url',
             'tone',
             'status',
             'published_at',
@@ -194,6 +197,23 @@ class ArticleController extends Controller
 
         return response()->json(['message' => 'Delete article success']);
     }
+    //get all sources linked to an article, sorted by is_primary first, then by name
+    public function sources(Article $article)
+    {
+        if (
+            (! auth()->check() || auth()->user()->role !== 'admin')
+            && $article->status !== 'active'
+        ) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return response()->json(
+            $article->sources()
+                ->orderByDesc('article_sources.is_primary')
+                ->get()
+        );
+    }
+
     // happyfeed function
     public function happyFeed(Request $request)
     {
@@ -201,11 +221,11 @@ class ArticleController extends Controller
         $articles = Article::query()
             ->where('status', 'active')
             ->whereHas('tags', function ($query) {
-                $query->where('name', 'Goed nieuws');
+                $query->where('name', 'happy');
             })
             ->with([
                 'tags' => function ($query) {
-                    $query->where('name', '!=', 'Goed nieuws');
+                    $query->where('name', '!=', 'happy');
                 },
                 'callToAction',
                 'memes',
