@@ -26,6 +26,11 @@ class EditArticle extends EditRecord
         $this->record->pruneEmptyCallToAction();
     }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     // Layout: keep RelationManagers (Bronnen) tussen het form en de Save-knop,
     // mét de Save-knop binnen de <form> zodat submit werkt.
     //
