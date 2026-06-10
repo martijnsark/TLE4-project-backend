@@ -112,8 +112,8 @@ it('returns correct reaction counts grouped by smile/meh/frown', function () {
     $u1      = User::factory()->create();
     $u2      = User::factory()->create();
 
-    Reaction::create(['article_id' => $article->id, 'user_id' => $u1->id, 'reaction' => 'smile']);
-    Reaction::create(['article_id' => $article->id, 'user_id' => $u2->id, 'reaction' => 'meh']);
+    $article->reactions()->create(['user_id' => $u1->id, 'reaction' => 'smile']);
+    $article->reactions()->create(['user_id' => $u2->id, 'reaction' => 'meh']);
 
     $this->getJson('/api/articles')
         ->assertOk()

@@ -53,6 +53,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Technologie', 'category' => 'topic'],
             ['name' => 'Gezondheid',  'category' => 'topic'],
             ['name' => 'Economie',    'category' => 'topic'],
+            ['name' => 'Media',       'category' => 'topic'],
+            ['name' => 'Buitenland',  'category' => 'topic'],
+            ['name' => 'Ramp',        'category' => 'topic'],
+            ['name' => 'Natuur',      'category' => 'topic'],
+            ['name' => 'Nederland',   'category' => 'topic'],
+            ['name' => 'Innovatie',   'category' => 'topic'],
+            ['name' => 'Muziek',      'category' => 'topic'],
+            ['name' => 'Kunst',       'category' => 'topic'],
             // flag tags
             ['name' => 'Goed nieuws', 'category' => 'flag'],
             ['name' => 'Trending',    'category' => 'flag'],
@@ -81,8 +89,7 @@ class DatabaseSeeder extends Seeder
     De exacte regels worden nog uitgewerkt. Denk aan: hoe vaak een kind in beeld komt en of er echt geld mee verdiend wordt. Gewone gezinsvlogs zonder verdienmodel vallen er niet onder. Ook YouTube, Instagram en TikTok worden bij de plannen betrokken. Eind dit jaar moet alles duidelijk zijn.
     ',
             'image_url' => 'https://images.unsplash.com/photo-1529101091764-c3526daf38fe',
-            'original_url' => 'https://example.com/kinderen-vlogs',
-            'tone' => 'light',
+            'tone' => 'Achtergrond',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -93,8 +100,7 @@ class DatabaseSeeder extends Seeder
             'summary' => 'Aardbeving van 7,8 veroorzaakt grote schade',
             'content' => 'Gisteren werd de Filipijnen getroffen door een zware aardbeving van 7,8, de krachtigste in vijftig jaar. Inmiddels zijn er zeker 37 mensen omgekomen, raakten bijna 500 mensen gewond en zijn er nog vier vermisten. Meer dan 20.000 mensen moesten hun huis verlaten, onder andere uit voorzorg vanwege een mogelijke tsunami. Die bleef uiteindelijk uit.De meeste schade is op het zuidelijke eiland Mindanao. Zo een 1500 huizen zijn volledig verwoest, scholen en overheidsgebouwen zijn beschadigd en honderdduizenden mensen zitten zonder stroom. In de provincie Sarangani werden huizen in een bergdorpje bedekt door een aardverschuiving. Ook zijn veel wegen onbegaanbaar. Bij een school stortte een dak in, net op de dag dat kinderen terugkwamen van zomervakantie. Hierdoor blijven veel scholen blijven voorlopig dicht. De autoriteiten zijn nog bezig met hulpverlening en zoeken naar mensen onder het puin. Wanneer iedereen weer veilig naar huis kan, is nog niet bekend.',
             'image_url' => 'https://images.unsplash.com/photo-1500674425229-f692875b0ab7',
-            'original_url' => 'https://example.com/aardbeving-filipijnen',
-            'tone' => 'light',
+            'tone' => 'Live',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -108,8 +114,7 @@ Een federale rechter in Boston heeft de verhoging nu ongeldig verklaard. Volgens
 Of het tarief uiteindelijk toch wordt ingevoerd, wordt duidelijk zodra het hoger beroep is behandeld.
 ',
             'image_url' => 'https://images.unsplash.com/photo-1528747045269-390fe33c19d7',
-            'original_url' => 'https://example.com/visum-vs',
-            'tone' => 'light',
+            'tone' => 'Achtergrond',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -123,8 +128,7 @@ De Iraanse voetbalbond is boos en geeft de VS de schuld, omdat de twee landen in
 Iran speelt op het WK tegen Nieuw-Zeeland (16 juni), België (21 juni) en Egypte (27 juni). Of de tickets alsnog worden teruggegeven, is nog niet duidelijk.
 ',
             'image_url' => 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2',
-            'original_url' => 'https://example.com/wk-iran-fans',
-            'tone' => 'light',
+            'tone' => 'Live',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -138,8 +142,7 @@ Iran speelt op het WK tegen Nieuw-Zeeland (16 juni), België (21 juni) en Egypte
     De brandweer roept iedereen op om geen vuur te maken in de natuur en bewust te zijn van de risico`s. Hoe de situatie zich ontwikkelt, hangt af van hoe lang de droogte aanhoudt.
 ',
             'image_url' => 'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
-            'original_url' => 'https://example.com/natuurbranden-nl',
-            'tone' => 'light',
+            'tone' => 'Reportage',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -153,8 +156,7 @@ Een bekend voorbeeld is de gemeente Eindhoven, waar medewerkers in een maand mee
 Organisaties kunnen dit niet blijven negeren, zeggen deskundigen. Helemaal verbieden werkt ook niet. Beter is het om duidelijke regels te maken en eventueel software te gebruiken die automatisch bijhoudt wat er wordt gedeeld. Wanneer meer organisaties zulke regels invoeren, is nog onduidelijk.
 ',
             'image_url' => 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
-            'original_url' => 'https://example.com/ai-werkvloer',
-            'tone' => 'light',
+            'tone' => 'Opinie',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -168,8 +170,7 @@ Ook in Nederland was er veel discussie over zijn komst. Een meerderheid van de T
 Veel fans zitten met gemengde gevoelens. Ze houden van zijn muziek, maar keuren zijn gedrag af. "Ik ga voor de muziek, niet voor hem als persoon", zegt een van hen. Of Ye zich tijdens de shows aan zijn woord houdt, wordt vanavond duidelijk.
 ',
             'image_url' => 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a',
-            'original_url' => 'https://example.com/ye-arnhem',
-            'tone' => 'light',
+            'tone' => 'Reportage',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -183,8 +184,7 @@ De nieuwe editie wordt wel anders dan vroeger. Wat er precies te doen is, wordt 
 Meer details over het programma worden de komende maanden bekendgemaakt.
 ',
             'image_url' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
-            'original_url' => 'https://example.com/megafestatie',
-            'tone' => 'light',
+            'tone' => 'Achtergrond',
             'status' => 'active',
             'author_id' => $admin->id,
             'published_at' => now(),
@@ -283,9 +283,7 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
 
         $article3->reactions()->create([
             'user_id' => $user->id,
-            'article_id' => $article->id,
             'reaction' => 'smile',
-            'reaction' => 'happy',
         ]);
       
         $poll = Poll::create([
@@ -409,7 +407,8 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
           'editor_id' => $admin->id,
           'title' => 'Wanneer ChatGPT je deadline redt',
           'image_url' => 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
-          'caption' => 'Ik: schrijf 2000 woorden. AI: zeg minder.',
+          'top' => 'Ik: schrijf 2000 woorden',
+          'bot' => 'AI: zeg minder',
           'author' => '@klimaatkat',
           'author_name' => 'Sara de Vries',
       ]);
