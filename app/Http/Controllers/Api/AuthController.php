@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\Meme;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,18 +70,27 @@ class AuthController extends Controller
         ]);
     }
 
-    // account function (displays saved articles by user)
+    // account function (displays saved articles and memes by user)
     public function account(Request $request): JsonResponse
     {
         return response()->json([
-            'user' => $request->user()->load('savedArticles'),
+            'user' => $request->user()->load(['savedArticles', 'savedMemes']),
         ]);
     }
 
     // save article inside of "saved_articles" table (seperate per user)
-    public function saveArticle(Request $request, Article $article): JsonResponse
+    public function saveArticle(Request $request, $articleId): JsonResponse
     {
         $user = $request->user();
+
+        $article = Article::find($articleId);
+
+        if (!$article) {
+            return response()->json([
+                'message' => 'Aricle does not exist',
+                'code' => 'ARTICLE_NOT_FOUND'
+            ], 404);
+        }
 
         $user->savedArticles()->syncWithoutDetaching([
             $article->id => ['saved_at' => now()],
@@ -93,9 +103,31 @@ class AuthController extends Controller
     }
 
     //remove article inside of "saved_articles" table (seperate per user)
-    public function removeSavedArticle(Request $request, Article $article): JsonResponse
+    public function removeSavedArticle(Request $request, $articleId): JsonResponse
     {
         $user = $request->user();
+
+        // Check if article exists
+        $article = Article::find($articleId);
+
+        if (!$article) {
+            return response()->json([
+                'message' => 'Article not found',
+                'code' => 'ARTICLE_NOT_FOUND'
+            ], 404);
+        }
+
+        // Check if user saved this article
+        $isSaved = $user->savedArticles()
+            ->where('article_id', $article->id)
+            ->exists();
+
+        if (!$isSaved) {
+            return response()->json([
+                'message' => 'Article was not saved by this user',
+                'code' => 'ARTICLE_NOT_SAVED'
+            ], 404);
+        }
 
         $user->savedArticles()->detach($article->id);
 
@@ -104,6 +136,65 @@ class AuthController extends Controller
             'user' => $user->load('savedArticles'),
         ]);
     }
+
+    public function saveMeme(Request $request, $memeId): JsonResponse
+    {
+        $user = $request->user();
+
+        $meme = Meme::find($memeId);
+
+        if (!$meme) {
+            return response()->json([
+                'message' => 'Meme does not exist',
+                'code' => 'MEME_NOT_FOUND'
+            ], 404);
+        }
+
+        $user->savedMemes()->syncWithoutDetaching([
+            $meme->id => ['saved_at' => now()],
+        ]);
+
+        return response()->json([
+            'message' => 'Meme saved successfully',
+            'user' => $user->load('savedMemes'),
+        ]);
+    }
+
+    // remove meme inside of "saved_memes" table (seperate per user)
+    public function removeSavedMeme(Request $request, $memeId): JsonResponse
+    {
+        $user = $request->user();
+
+        // Check if meme exists
+        $meme = Meme::find($memeId);
+
+        if (!$meme) {
+            return response()->json([
+                'message' => 'Meme not found',
+                'code' => 'MEME_NOT_FOUND'
+            ], 404);
+        }
+
+        // Check if user saved this meme
+        $isSaved = $user->savedMemes()
+            ->where('meme_id', $meme->id)
+            ->exists();
+
+        if (!$isSaved) {
+            return response()->json([
+                'message' => 'Meme was not saved by this user',
+                'code' => 'MEME_NOT_SAVED'
+            ], 404);
+        }
+
+        $user->savedMemes()->detach($meme->id);
+
+        return response()->json([
+            'message' => 'Meme removed successfully',
+            'user' => $user->load('savedMemes'),
+        ]);
+    }
+
     // update account details, can update name, email and password seperately, but username is required when updating email or password (for unique validation)
     public function updateAccount(Request $request): JsonResponse
     {

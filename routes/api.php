@@ -38,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/account/articles/{article}/save', [AuthController::class, 'saveArticle']);
     // delete route to remove article from saved articles of user
     Route::delete('/account/articles/{article}/save', [AuthController::class, 'removeSavedArticle']);
+    // post route to save memes inside "saved_memes" table
+    Route::post('/account/memes/{meme}/save', [AuthController::class, 'saveMeme']);
+    // delete route to remove meme from saved memes of user
+    Route::delete('/account/memes/{meme}/save', [AuthController::class, 'removeSavedMeme']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/update-account', [AuthController::class, 'updateAccount']);
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
