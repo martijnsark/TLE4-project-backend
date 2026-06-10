@@ -82,8 +82,30 @@ class ReactionController extends Controller
             'message' => 'Reaction removed successfully',
         ]);
     }
+    //check own reaction for an article or meme, returns the reaction if it exists, otherwise null
+    private function myReaction(Request $request, Model $reactionable): JsonResponse
+    {
+        $reaction = $reactionable->reactions()
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        return response()->json([
+            'my_reaction' => $reaction,
+        ]);
+    }
 
     //morphic endpoints for articles and memes (prevents code duplication, uses the same private functions for both types of reactionables)
+
+    public function articleMyReaction(Request $request, Article $article): JsonResponse
+    {
+        return $this->myReaction($request, $article);
+    }
+
+    public function memeMyReaction(Request $request, Meme $meme): JsonResponse
+    {
+        return $this->myReaction($request, $meme);
+    }
+
 
     public function articleIndex(Request $request, Article $article): JsonResponse
     {

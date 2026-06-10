@@ -42,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me/tags', [TagController::class, 'myTags']);
     Route::put('/me/tags', [TagController::class, 'updateMyTags']);
     // reactions for articles and memes
+    Route::get('articles/{article}/my-reaction', [ReactionController::class, 'articleMyReaction']);
+    Route::get('memes/{meme}/my-reaction', [ReactionController::class, 'memeMyReaction']);
+
     Route::post('articles/{article}/reaction', [ReactionController::class, 'articleStore']);
     Route::delete('articles/{article}/reaction', [ReactionController::class, 'articleDestroy']);
 
