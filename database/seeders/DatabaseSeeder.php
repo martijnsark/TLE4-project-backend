@@ -5,8 +5,6 @@ namespace Database\Seeders;
 use App\Models\Article;
 use App\Models\ArticleView;
 use App\Models\CallToAction;
-use App\Models\ContentReview;
-use App\Models\GeneratedContent;
 use App\Models\Meme;
 use App\Models\MemeView;
 use App\Models\Poll;
@@ -44,18 +42,25 @@ class DatabaseSeeder extends Seeder
         );
 
         $tags = collect([
-            ['name' => 'happy', 'category' => 'happy'],
-            ['name' => 'Politiek', 'category' => 'politiek'],
-            ['name' => 'Buitenland', 'category' => 'buitenland'],
-            ['name' => 'Economie', 'category' => 'economie'],
-            ['name' => 'Sport', 'category' => 'sport'],
-            ['name' => 'Natuur', 'category' => 'natuur'],
-            ['name' => 'Innovatie', 'category' => 'innovatie'],
-            ['name' => 'Kunst', 'category' => 'kunst'],
-            ['name' => 'Lokaal', 'category' => 'lokaal'],
-        ])->map(fn($tag) => Tag::firstOrCreate(['name' => $tag['name']], $tag));
+            // navigation tags — de 6 RN-mock categorieën
+            ['name' => 'Voor jou',   'category' => 'navigation'],
+            ['name' => 'Klimaat',    'category' => 'navigation'],
+            ['name' => 'Politiek',   'category' => 'navigation'],
+            ['name' => 'Sport',      'category' => 'navigation'],
+            ['name' => 'Tech',       'category' => 'navigation'],
+            ['name' => 'Wereld',     'category' => 'navigation'],
+            // topic tags
+            ['name' => 'Technologie', 'category' => 'topic'],
+            ['name' => 'Gezondheid',  'category' => 'topic'],
+            ['name' => 'Economie',    'category' => 'topic'],
+            // flag tags
+            ['name' => 'Goed nieuws', 'category' => 'flag'],
+            ['name' => 'Trending',    'category' => 'flag'],
+        ])->map(fn ($tag) => Tag::firstOrCreate(['name' => $tag['name']], $tag));
 
         $user->interestTags()->sync($tags->whereIn('name', ['Politiek', 'Innovatie', 'Natuur'])->pluck('id'));
+
+        $klimaatTag = $tags->firstWhere('name', 'Klimaat');
 
         $nos = Source::firstOrCreate(
             ['name' => 'NOS'],
@@ -184,6 +189,9 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
             'author_id' => $admin->id,
             'published_at' => now(),
         ]);
+        $article3->sources()->syncWithoutDetaching([
+            $reuters->id => ['source_url' => 'https://www.reuters.com/example-3', 'is_primary' => true],
+        ]);
 
 //        $article->tags()->sync($tags->whereIn('name', ['Politiek', 'Natuur'])->pluck('id'));
 //        $article->sources()->syncWithoutDetaching([
@@ -275,6 +283,8 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
 
         $article3->reactions()->create([
             'user_id' => $user->id,
+            'article_id' => $article->id,
+            'reaction' => 'smile',
             'reaction' => 'happy',
         ]);
       
@@ -395,11 +405,14 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
         ]);
 
         $meme = Meme::create([
-            'article_id' => $article7->id,
-            'title' => 'Wanneer ChatGPT je deadline redt',
-            'image_url' => 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
-            'caption' => 'Ik: schrijf 2000 woorden. AI: zeg minder.',
-        ]);
+          'article_id' => $article7->id,
+          'editor_id' => $admin->id,
+          'title' => 'Wanneer ChatGPT je deadline redt',
+          'image_url' => 'https://images.unsplash.com/photo-1677442136019-21780ecad995',
+          'caption' => 'Ik: schrijf 2000 woorden. AI: zeg minder.',
+          'author' => '@klimaatkat',
+          'author_name' => 'Sara de Vries',
+      ]);
         //8
         $article8->tags()->sync(
             $tags->whereIn('name', ['Muziek', 'Kunst'])->pluck('id')

@@ -1,0 +1,248 @@
+<?php
+
+use App\Filament\Resources\Articles\Pages\CreateArticle;
+use App\Filament\Resources\Articles\Pages\EditArticle;
+use App\Filament\Resources\Articles\Pages\ListArticles;
+use App\Models\Article;
+use App\Models\Tag;
+use App\Models\User;
+
+beforeEach(function () {
+    $this->admin = User::factory()->admin()->create();
+    $this->actingAs($this->admin);
+});
+
+it('lists articles in the table', function () {
+    $articles = Article::factory()->count(3)->create();
+
+    \Livewire\Livewire::test(ListArticles::class)
+        ->assertCanSeeTableRecords($articles);
+});
+
+it('creates an article with body paragraphs and tone', function () {
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title'           => 'Test artikel',
+            'summary'         => 'Een korte samenvatting.',
+            'body_paragraphs' => [['value' => 'Eerste paragraaf.']],
+            'tone'            => 'Live',
+            'status'          => 'draft',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $article = Article::latest()->first();
+    expect($article->title)->toBe('Test artikel');
+    expect($article->tone)->toBe('Live');
+    expect($article->body_paragraphs)->toBe([['value' => 'Eerste paragraaf.']]);
+});
+
+it('validates required fields on create', function () {
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm(['title' => ''])
+        ->call('create')
+        ->assertHasFormErrors(['title' => 'required']);
+});
+
+it('koppelt trending-tag via tag-select op een artikel', function () {
+    $article     = Article::factory()->create();
+    $trendingTag = Tag::firstOrCreate(['name' => 'Trending'], ['category' => 'flag']);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm(['tags' => [$trendingTag->id]])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->fresh()->is_trending)->toBeTrue();
+});
+
+it('updates article tags via the relationship select', function () {
+    $article = Article::factory()->create();
+    $tag = Tag::create(['name' => 'TestTag']);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm(['tags' => [$tag->id]])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->fresh()->tags->pluck('id'))->toContain($tag->id);
+});
+
+it('persists the selected author when creating an article', function () {
+    $author = User::factory()->create();
+
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title'           => 'Met expliciete auteur',
+            'summary'         => 'samenvatting',
+            'body_paragraphs' => [['value' => 'p']],
+            'tone'            => 'Live',
+            'status'          => 'draft',
+            'author_id'       => $author->id,
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Article::latest()->first()->author_id)->toBe($author->id);
+});
+
+it('creates a CTA inline when filling the call-to-action section', function () {
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title'           => 'Met CTA',
+            'summary'         => 'samenvatting',
+            'body_paragraphs' => [['value' => 'p']],
+            'tone'            => 'Live',
+            'status'          => 'draft',
+            'callToAction'    => [
+                'title'      => 'Doe mee',
+                'target_url' => 'https://example.com/doe-mee',
+                'goal_text'  => 'Help mee aan dit doel.',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $article = Article::latest()->first();
+
+    expect($article->callToAction)
+        ->not->toBeNull()
+        ->and($article->callToAction->title)->toBe('Doe mee');
+});
+
+it('prunes empty CTA after create so no orphan row stays in db', function () {
+    \Livewire\Livewire::test(CreateArticle::class)
+        ->fillForm([
+            'title'           => 'Zonder CTA',
+            'summary'         => 'samenvatting',
+            'body_paragraphs' => [['value' => 'p']],
+            'tone'            => 'Live',
+            'status'          => 'draft',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $article = Article::latest()->first();
+
+    expect($article->callToAction()->exists())->toBeFalse();
+});
+
+it('prunes CTA after edit when all fields are cleared', function () {
+    $article = Article::factory()->create();
+    $article->callToAction()->create([
+        'title'      => 'Doe mee',
+        'goal_text'  => 'Help',
+        'target_url' => 'https://example.com',
+    ]);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm([
+            'callToAction' => [
+                'title'        => null,
+                'context_text' => null,
+                'goal_text'    => null,
+                'target_url'   => null,
+            ],
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->fresh()->callToAction()->exists())->toBeFalse();
+});
+
+it('skips CTA in the api shape when title is empty', function () {
+    $article = Article::factory()->create(['status' => 'active']);
+    $article->callToAction()->create([
+        'title'        => null,
+        'context_text' => null,
+        'goal_text'    => null,
+        'target_url'   => null,
+    ]);
+
+    $this->getJson('/api/articles')
+        ->assertOk()
+        ->assertJsonPath('data.0.actions', []);
+});
+
+it('saves a status-only change on an existing article without body_paragraphs', function () {
+    $article = Article::factory()->create([
+        'status'          => 'draft',
+        'body_paragraphs' => null,
+    ]);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm(['status' => 'active'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($article->fresh()->status)->toBe('active');
+});
+
+it('deletes an article via the edit-page header action', function () {
+    $article = Article::factory()->create();
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->callAction('delete');
+
+    expect(Article::find($article->id))->toBeNull();
+});
+
+it('renders Bronnen RelationManager AND Save changes on the edit page (regression)', function () {
+    // Two prior bugs:
+    //   (a) custom content() put Save outside the form → submit did nothing
+    //   (b) nesting RelationManagers inside the form footer left them blank
+    //       unless we also disable lazy-mount on the manager itself.
+    // This test catches both: page must render the Bronnen heading AND the
+    // Save changes button on the same render.
+    $article = Article::factory()->create();
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->assertSeeHtml('Save changes')
+        ->assertSeeHtml('Bronnen');
+});
+
+it('still renders Bronnen heading when an article has zero sources (edge)', function () {
+    $article = Article::factory()->create();
+    expect($article->sources()->count())->toBe(0);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->assertSeeHtml('Bronnen');
+});
+
+it('blocks save when title is cleared on an existing article (edge)', function () {
+    $article = Article::factory()->create(['title' => 'Origineel']);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm(['title' => ''])
+        ->call('save')
+        ->assertHasFormErrors(['title' => 'required']);
+
+    expect($article->fresh()->title)->toBe('Origineel');
+});
+
+it('persists each valid status value through edit save (edge)', function () {
+    $article = Article::factory()->create(['status' => 'draft']);
+
+    foreach (['inactive', 'active', 'archived', 'draft'] as $status) {
+        \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+            ->fillForm(['status' => $status])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect($article->fresh()->status)->toBe($status);
+    }
+});
+
+it('redirects to the index after creating an article', function () {
+    $component = \Livewire\Livewire::test(\App\Filament\Resources\Articles\Pages\CreateArticle::class)
+        ->fillForm([
+            'title'   => 'Redirect-check',
+            'summary' => 'x',
+            'tone'    => 'Live',
+            'status'  => 'draft',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $component->assertRedirect(\App\Filament\Resources\Articles\ArticleResource::getUrl('index'));
+});
