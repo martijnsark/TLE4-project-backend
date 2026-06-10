@@ -43,18 +43,24 @@ class ReactionController extends Controller
             'reaction' => ['required', 'in:happy,shocked,sad'],
         ]);
 
-        $reaction = $reactionable->reactions()->updateOrCreate(
-            [
-                'user_id' => $request->user()->id,
-            ],
-            [
+        $reaction = $reactionable->reactions()
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if ($reaction) {
+            $reaction->update([
                 'reaction' => $validated['reaction'],
-            ]
-        );
+            ]);
+        } else {
+            $reaction = $reactionable->reactions()->create([
+                'user_id' => $request->user()->id,
+                'reaction' => $validated['reaction'],
+            ]);
+        }
 
         return response()->json([
             'message' => 'Reaction saved successfully',
-            'reaction' => $reaction,
+            'reaction' => $reaction->fresh(),
         ]);
     }
     // Delete the user's reaction to an article or meme
