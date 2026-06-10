@@ -378,7 +378,7 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Required fields: none
     - Optional fields: none
     - Example request: `GET /api/account`
-    - Returns: the authenticated `user` with `savedArticles` loaded
+    - Returns: the authenticated `user` with `savedArticles` and `savedMemes` loaded
 - `POST /api/account/articles/{article}/save`
     - Auth: required (`Authorization: Bearer <token>`)
     - Required fields: none in the request body
@@ -450,6 +450,14 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Path parameter: `poll` (for example `1`)
     - Example request: `GET /api/polls/7/results`
     - Returns: the poll results summary
+- `POST /api/account/memes/1/save`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+- `Delete /api/account/memes/1/save`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
 
 <br><br>
 
