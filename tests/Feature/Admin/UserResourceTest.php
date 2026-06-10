@@ -67,6 +67,18 @@ it('keeps existing password when edit submits with empty password field', functi
     expect($user->fresh()->name)->toBe('Updated Name');
 });
 
+it('prevents an admin from demoting their own role', function () {
+    $admin = auth()->user();
+    expect($admin->role)->toBe('admin');
+
+    \Livewire\Livewire::test(EditUser::class, ['record' => $admin->getKey()])
+        ->fillForm(['role' => 'user'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($admin->fresh()->role)->toBe('admin');
+});
+
 it('disables username on edit so it cannot be changed', function () {
     $user = User::factory()->create(['username' => 'original_handle']);
 

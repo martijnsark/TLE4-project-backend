@@ -52,7 +52,9 @@ class UserForm
                 ->required()
                 ->default('user')
                 ->native(false)
-                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Bepaalt of deze gebruiker toegang heeft tot het admin-paneel.'),
+                ->disabled(fn (?User $record): bool => $record !== null && $record->id === auth()->id())
+                ->hint(fn (?User $record): ?string => $record !== null && $record->id === auth()->id() ? 'je eigen rol kun je niet wijzigen' : null)
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Bepaalt of deze gebruiker toegang heeft tot het admin-paneel. Je kunt je eigen rol niet wijzigen — anders sluit je jezelf uit.'),
         ]);
     }
 }
