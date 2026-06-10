@@ -38,10 +38,10 @@ class MemeForm
                 ->disk('public')
                 ->directory('memes')
                 ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                ->maxSize(5120)
+                ->maxSize(2048)
                 ->imagePreviewHeight('200')
                 ->required()
-                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: img. Toegestane formats: JPG, PNG, WebP. Max 5 MB.')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: img. Toegestane formats: JPG, PNG, WebP. Max 2 MB.')
                 ->columnSpanFull(),
 
             TextInput::make('title')
