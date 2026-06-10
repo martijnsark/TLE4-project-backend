@@ -273,6 +273,11 @@ Meer details over het programma worden de komende maanden bekendgemaakt.
             $tags->whereIn('name', ['Economie', 'Buitenland'])->pluck('id')
         );
 
+        $article3->reactions()->create([
+            'user_id' => $user->id,
+            'reaction' => 'happy',
+        ]);
+      
         $poll = Poll::create([
             'article_id' => $article3->id,
             'question' => 'Moeten landen buitenlandse kenniswerkers actief aantrekken?',

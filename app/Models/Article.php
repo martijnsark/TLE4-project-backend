@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Article extends Model
 {
@@ -39,10 +40,10 @@ class Article extends Model
     {
         return $this->hasOne(CallToAction::class);
     }
-
-    public function reactions(): HasMany
+    // The reactions() method defines the polymorphic relationship to the Reaction model
+    public function reactions(): MorphMany
     {
-        return $this->hasMany(Reaction::class);
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 
     public function polls(): HasMany
