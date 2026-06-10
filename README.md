@@ -345,6 +345,22 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Each source includes the source details and pivot data such as `source_url` and `is_primary`
     - Frontend usage: use this endpoint to show a source overview under an article, so users can open the original source article
 
+- `GET /api/articles/{article}/reactions`
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `GET /api/articles/42/reactions`
+    - Returns: reaction counts for the article, grouped by reaction type
+    - Frontend usage: use this endpoint to show how users feel about an article
+
+- `GET /api/memes/{meme}/reactions`
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Example request: `GET /api/memes/12/reactions`
+    - Returns: reaction counts for the meme, grouped by reaction type
+    - Frontend usage: use this endpoint to show how users feel about a meme
+
 
 ### private endpoints (original user only)
 
@@ -460,6 +476,68 @@ Example JSON bodies below use realistic sample values. For routes with path or q
     - Auth: required (`Authorization: Bearer <token>`)
     - Required fields: none
     - Optional fields: none
+
+- `GET /api/articles/{article}/my-reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `GET /api/articles/42/my-reaction`
+    - Returns: the authenticated user's reaction for the article, or `null` if the user has not reacted yet
+
+- `GET /api/memes/{meme}/my-reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Example request: `GET /api/memes/12/my-reaction`
+    - Returns: the authenticated user's reaction for the meme, or `null` if the user has not reacted yet
+
+- `POST /api/articles/{article}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: `reaction`
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Allowed reaction values: `happy`, `shocked`, `sad`
+    - Example request:
+      ```json
+      {
+        "reaction": "happy"
+      }
+      ```
+    - Returns: a success `message` and the saved `reaction`
+    - Note: if the user already reacted to this article, the existing reaction is updated
+
+- `DELETE /api/articles/{article}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `article` (the article ID)
+    - Example request: `DELETE /api/articles/42/reaction`
+    - Returns: a success `message` after removing the authenticated user's reaction from the article
+
+- `POST /api/memes/{meme}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: `reaction`
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Allowed reaction values: `happy`, `shocked`, `sad`
+    - Example request:
+      ```json
+      {
+        "reaction": "shocked"
+      }
+      ```
+    - Returns: a success `message` and the saved `reaction`
+    - Note: if the user already reacted to this meme, the existing reaction is updated
+
+- `DELETE /api/memes/{meme}/reaction`
+    - Auth: required (`Authorization: Bearer <token>`)
+    - Required fields: none
+    - Optional fields: none
+    - Path parameter: `meme` (the meme ID)
+    - Example request: `DELETE /api/memes/12/reaction`
+    - Returns: a success `message` after removing the authenticated user's reaction from the meme
 
 <br><br>
 
