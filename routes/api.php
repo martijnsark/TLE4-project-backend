@@ -79,9 +79,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 });
 
 // polls for everyone
+Route::get('polls', [PollController::class, 'index']);
+Route::get('polls/{poll}', [PollController::class, 'show']);
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('polls', [PollController::class, 'index']);
-    Route::get('polls/{poll}', [PollController::class, 'show']);
     Route::get('polls/{poll}/results', [PollController::class, 'results']);
     Route::get('poll-options', [App\Http\Controllers\Api\PollOptionController::class, 'index']);
     Route::post('poll-votes', [App\Http\Controllers\Api\PollVoteController::class, 'store']);
