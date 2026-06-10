@@ -28,7 +28,10 @@ class MemesTable
                         ->orWhere('author', 'like', "%{$search}%")
                         ->orWhere('author_name', 'like', "%{$search}%")
                         ->orWhereHas('article', fn (Builder $q) => $q->where('title', 'like', "%{$search}%"))),
-                ImageColumn::make('image_url'),
+                ImageColumn::make('image_url')
+                    ->label('Afbeelding')
+                    ->disk('public')
+                    ->square(),
                 TextColumn::make('editor.name')
                     ->label('Redacteur')
                     ->sortable()
