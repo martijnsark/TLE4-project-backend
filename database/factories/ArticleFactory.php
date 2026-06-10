@@ -23,7 +23,6 @@ class ArticleFactory extends Factory
                 ['value' => fake()->paragraph()],
             ],
             'image_url'     => null,
-            'original_url'  => fake()->url(),
             'tone'          => fake()->randomElement(['Live', 'Achtergrond', 'Reportage', 'Opinie']),
             'status'        => 'active',
             'published_at'  => now(),

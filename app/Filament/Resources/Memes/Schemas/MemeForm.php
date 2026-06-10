@@ -7,6 +7,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class MemeForm
@@ -20,28 +21,33 @@ class MemeForm
                 ->searchable()
                 ->preload()
                 ->nullable()
+                ->hint('optioneel')
+                ->columnSpanFull(),
+
+            Select::make('editor_id')
+                ->label('Redacteur')
+                ->relationship('editor', 'name')
+                ->searchable()
+                ->preload()
+                ->nullable()
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'De redacteur die deze meme heeft toegevoegd. Wordt automatisch ingevuld met de ingelogde admin.')
                 ->columnSpanFull(),
 
             FileUpload::make('image_url')
-                ->label('Afbeelding (img)')
+                ->label('Afbeelding')
                 ->disk('public')
                 ->directory('memes')
                 ->image()
                 ->imagePreviewHeight('200')
                 ->required()
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: img')
                 ->columnSpanFull(),
 
             TextInput::make('title')
-                ->label('Intern label (optioneel)')
+                ->label('Intern label')
+                ->hint('optioneel')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Alleen zichtbaar in het admin-paneel. Wordt gebruikt om memes terug te vinden via de zoekbalk in de memes-lijst (naast top/onder-tekst, credit en artikel-titel).')
                 ->maxLength(255),
-
-            TextInput::make('author')
-                ->label('Auteur (handle)')
-                ->maxLength(100),
-
-            TextInput::make('author_name')
-                ->label('Auteursnaam')
-                ->maxLength(100),
 
             Select::make('cat')
                 ->label('Categorie')
@@ -51,16 +57,37 @@ class MemeForm
                     ->all())
                 ->searchable()
                 ->nullable()
-                ->helperText('Gebaseerd op de navigation-tags. Opgeslagen als UPPERCASE.'),
+                ->hint('optioneel')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Gebaseerd op de navigation-tags. Opgeslagen als UPPERCASE.'),
 
             Textarea::make('top')
                 ->label('Bovenste tekst')
+                ->hint('optioneel')
                 ->rows(3)
                 ->columnSpanFull(),
 
             Textarea::make('bot')
                 ->label('Onderste tekst')
+                ->hint('optioneel')
                 ->rows(3)
+                ->columnSpanFull(),
+
+            Section::make('Externe credit')
+                ->description('Optionele credit voor de originele meme-maker (Instagram, X, etc.).')
+                ->columns(2)
+                ->schema([
+                    TextInput::make('author')
+                        ->label('Handle')
+                        ->placeholder('@klimaatkat')
+                        ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Social-handle van de originele meme-maker.')
+                        ->maxLength(100),
+
+                    TextInput::make('author_name')
+                        ->label('Naam')
+                        ->placeholder('Sara de Vries')
+                        ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Volledige naam van de originele meme-maker.')
+                        ->maxLength(100),
+                ])
                 ->columnSpanFull(),
         ]);
     }

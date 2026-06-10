@@ -68,6 +68,32 @@ it('allows a meme with only an image and no title/top/bot', function () {
         ->title->toBeNull()
         ->top->toBeNull()
         ->bot->toBeNull()
-        ->caption->toBeNull()
         ->image_url->toBe('memes/img.jpg');
+});
+
+it('relates a meme to its editor (internal author)', function () {
+    $editor = User::factory()->admin()->create(['name' => 'Redacteur X']);
+
+    $meme = Meme::create([
+        'image_url' => 'memes/x.jpg',
+        'editor_id' => $editor->id,
+    ]);
+
+    expect($meme->fresh()->editor)
+        ->not->toBeNull()
+        ->name->toBe('Redacteur X');
+});
+
+it('searches memes by related article title in the admin list', function () {
+    $article = Article::factory()->create([
+        'title'     => 'Uniek-zoekwoord-XYZ klimaat-verhaal',
+        'author_id' => $this->admin->id,
+    ]);
+    $matching = Meme::factory()->create(['article_id' => $article->id, 'title' => 'meme-A']);
+    $other    = Meme::factory()->create(['article_id' => null, 'title' => 'meme-B']);
+
+    \Livewire\Livewire::test(ListMemes::class)
+        ->set('tableSearch', 'Uniek-zoekwoord-XYZ')
+        ->assertCanSeeTableRecords([$matching])
+        ->assertCanNotSeeTableRecords([$other]);
 });

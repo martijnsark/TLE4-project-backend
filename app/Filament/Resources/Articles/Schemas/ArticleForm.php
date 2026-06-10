@@ -8,7 +8,6 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -34,10 +33,11 @@ class ArticleForm
                         ->native(false),
 
                     DateTimePicker::make('published_at')
-                        ->label('Publicatiedatum'),
+                        ->label('Publicatiedatum')
+                        ->hint('optioneel'),
 
                     Select::make('author_id')
-                        ->label('Auteur')
+                        ->label('Redacteur')
                         ->relationship('author', 'name')
                         ->searchable()
                         ->preload(),
@@ -45,17 +45,22 @@ class ArticleForm
                 ->columnSpanFull(),
 
             TextInput::make('title')
+                ->label('Titel')
                 ->required()
                 ->maxLength(255)
                 ->columnSpanFull(),
 
             Textarea::make('summary')
-                ->label('Samenvatting (sub)')
+                ->label('Samenvatting')
+                ->hint('optioneel')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: sub. Korte intro die boven het artikel verschijnt.')
                 ->maxLength(280)
                 ->columnSpanFull(),
 
             Repeater::make('body_paragraphs')
-                ->label('Paragrafen (body)')
+                ->label('Paragrafen')
+                ->hint('optioneel')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: body. Lege paragrafen worden bij save genegeerd.')
                 ->schema([
                     Textarea::make('value')
                         ->label('Paragraaf')
@@ -67,17 +72,14 @@ class ArticleForm
                 ->columnSpanFull(),
 
             FileUpload::make('image_url')
-                ->label('Afbeelding (img)')
+                ->label('Afbeelding')
+                ->hint('optioneel')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: img')
                 ->disk('public')
                 ->directory('articles')
                 ->image()
                 ->imagePreviewHeight('200')
                 ->columnSpanFull(),
-
-            TextInput::make('original_url')
-                ->label('Originele URL')
-                ->url()
-                ->maxLength(500),
 
             Select::make('tone')
                 ->label('Toon')
@@ -92,6 +94,7 @@ class ArticleForm
 
             Select::make('tags')
                 ->label('Tags')
+                ->hint('optioneel')
                 ->multiple()
                 ->relationship('tags', 'name')
                 ->searchable()

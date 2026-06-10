@@ -13,4 +13,9 @@ class CreateArticle extends CreateRecord
     {
         $this->record->pruneEmptyCallToAction();
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

@@ -85,15 +85,14 @@ class ArticleController extends Controller
     {
         return response()->json(['message' => 'Create article success']);
     }
-    //store an article, requires title, summary, content, image_url, original_url, tone and status, also can include published_at and tags associated with the article, only the author or admin can create an article
+    //store an article, requires title, summary, content, image_url, tone and status, also can include published_at and tags associated with the article, only the author or admin can create an article
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'required|string',
             'content' => 'nullable|string',
-            'image_url' => 'required|url',
-            'original_url' => 'required|url',
+            'image_url' => 'required|string',
             'tone' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'published_at' => 'nullable|date',
@@ -107,7 +106,6 @@ class ArticleController extends Controller
         $article->summary = $request->input('summary');
         $article->content = $request->input('content');
         $article->image_url = $request->input('image_url');
-        $article->original_url = $request->input('original_url');
         $article->tone = $request->input('tone');
         $article->status = $request->input('status');
         $article->published_at = $request->input('published_at');
@@ -149,7 +147,7 @@ class ArticleController extends Controller
         }
         return response()->json(['message' => 'Update article success']);
     }
-    //update an article, only the author or admin can update an article, can update title, summary, content, image_url, original_url, tone, status and published_at, also can update the tags associated with the article
+    //update an article, only the author or admin can update an article, can update title, summary, content, image_url, tone, status and published_at, also can update the tags associated with the article
     public function update(Request $request, Article $article)
     {
         if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
@@ -160,8 +158,7 @@ class ArticleController extends Controller
             'title' => ['sometimes', 'string', 'max:255'],
             'summary' => ['sometimes', 'string'],
             'content' => ['sometimes', 'string'],
-            'image_url' => ['sometimes', 'url'],
-            'original_url' => ['sometimes', 'url'],
+            'image_url' => ['sometimes', 'string'],
             'tone' => ['sometimes', 'in:Live,Achtergrond,Reportage,Opinie'],
             'status' => ['sometimes', 'in:draft,inactive,active,archived'],
             'published_at' => ['sometimes', 'nullable', 'date'],
@@ -175,7 +172,6 @@ class ArticleController extends Controller
             'summary',
             'content',
             'image_url',
-            'original_url',
             'tone',
             'status',
             'published_at',
@@ -205,11 +201,11 @@ class ArticleController extends Controller
         $articles = Article::query()
             ->where('status', 'active')
             ->whereHas('tags', function ($query) {
-                $query->where('name', 'happy');
+                $query->where('name', 'Goed nieuws');
             })
             ->with([
                 'tags' => function ($query) {
-                    $query->where('name', '!=', 'happy');
+                    $query->where('name', '!=', 'Goed nieuws');
                 },
                 'callToAction',
                 'memes',

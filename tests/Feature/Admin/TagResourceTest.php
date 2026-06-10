@@ -15,7 +15,7 @@ it('lists tags in the table', function () {
 
     \Livewire\Livewire::test(ListTags::class)
         ->assertCanSeeTableRecords($tags);
-})->skip(fn () => ! class_exists(\Database\Factories\TagFactory::class), 'TagFactory not present');
+});
 
 it('creates a navigation tag via admin', function () {
     \Livewire\Livewire::test(CreateTag::class)

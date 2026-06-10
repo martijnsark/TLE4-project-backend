@@ -26,6 +26,11 @@ class SourceRelationManager extends RelationManager
 
     protected static string|BackedEnum|null $icon = Heroicon::OutlinedLink;
 
+    // Disable lazy-mount so the manager renders inline (we nested it inside the
+    // form footer in EditArticle, and the lazy placeholder doesn't get filled
+    // when nested — see app/Filament/Resources/Articles/Pages/EditArticle.php).
+    protected static bool $isLazy = false;
+
     public static function getBadge(Model $ownerRecord, string $pageClass): ?string
     {
         $count = $ownerRecord->sources()->count();

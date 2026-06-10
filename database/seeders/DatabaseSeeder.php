@@ -81,7 +81,6 @@ class DatabaseSeeder extends Seeder
                 ['value' => 'Kleine keuzes zoals minder voedsel verspillen, vaker fietsen en bewuster kopen kunnen samen veel verschil maken.'],
             ],
             'image_url'        => 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1',
-            'original_url'     => 'https://example.com/klimaat-jongeren',
             'tone'             => 'Achtergrond',
             'status'           => 'active',
             'author_id'        => $admin->id,
@@ -89,28 +88,32 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // extra articles for testing home feed
-        Article::create([
+        $article2 = Article::create([
             'title'       => 'Artikel 2',
             'summary'     => 'Samenvatting 2',
             'content'     => 'Content 2',
             'image_url'   => 'https://images.unsplash.com/photo-2',
-            'original_url' => 'https://example.com/2',
             'tone'        => 'Live',
             'status'      => 'active',
             'author_id'   => $admin->id,
             'published_at' => now()->subDays(1),
         ]);
+        $article2->sources()->syncWithoutDetaching([
+            $nos->id => ['source_url' => 'https://nos.nl/example-2', 'is_primary' => true],
+        ]);
 
-        Article::create([
+        $article3 = Article::create([
             'title'       => 'Artikel 3',
             'summary'     => 'Samenvatting 3',
             'content'     => 'Content 3',
             'image_url'   => 'https://images.unsplash.com/photo-3',
-            'original_url' => 'https://example.com/3',
             'tone'        => 'Reportage',
             'status'      => 'inactive',
             'author_id'   => $admin->id,
             'published_at' => now()->subDays(1),
+        ]);
+        $article3->sources()->syncWithoutDetaching([
+            $reuters->id => ['source_url' => 'https://www.reuters.com/example-3', 'is_primary' => true],
         ]);
 
         $politiekTag  = $tags->firstWhere('name', 'Politiek');
@@ -185,9 +188,11 @@ class DatabaseSeeder extends Seeder
 
         $meme = Meme::create([
             'article_id' => $article->id,
+            'editor_id' => $admin->id,
             'title' => 'Wanneer je “vandaag duurzaam” zegt',
             'image_url' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
-            'caption' => 'Ik op de fiets terwijl het regent: Character Development.',
+            'author' => '@klimaatkat',
+            'author_name' => 'Sara de Vries',
         ]);
 
         $user->savedMemes()->syncWithoutDetaching([

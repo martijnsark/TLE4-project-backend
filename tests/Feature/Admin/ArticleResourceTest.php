@@ -25,7 +25,6 @@ it('creates an article with body paragraphs and tone', function () {
             'title'           => 'Test artikel',
             'summary'         => 'Een korte samenvatting.',
             'body_paragraphs' => [['value' => 'Eerste paragraaf.']],
-            'original_url'    => 'https://example.com/artikel',
             'tone'            => 'Live',
             'status'          => 'draft',
         ])
@@ -77,7 +76,6 @@ it('persists the selected author when creating an article', function () {
             'title'           => 'Met expliciete auteur',
             'summary'         => 'samenvatting',
             'body_paragraphs' => [['value' => 'p']],
-            'original_url'    => 'https://example.com/auteur',
             'tone'            => 'Live',
             'status'          => 'draft',
             'author_id'       => $author->id,
@@ -94,7 +92,6 @@ it('creates a CTA inline when filling the call-to-action section', function () {
             'title'           => 'Met CTA',
             'summary'         => 'samenvatting',
             'body_paragraphs' => [['value' => 'p']],
-            'original_url'    => 'https://example.com/cta',
             'tone'            => 'Live',
             'status'          => 'draft',
             'callToAction'    => [
@@ -119,7 +116,6 @@ it('prunes empty CTA after create so no orphan row stays in db', function () {
             'title'           => 'Zonder CTA',
             'summary'         => 'samenvatting',
             'body_paragraphs' => [['value' => 'p']],
-            'original_url'    => 'https://example.com/cta-leeg',
             'tone'            => 'Live',
             'status'          => 'draft',
         ])
@@ -189,4 +185,64 @@ it('deletes an article via the edit-page header action', function () {
         ->callAction('delete');
 
     expect(Article::find($article->id))->toBeNull();
+});
+
+it('renders Bronnen RelationManager AND Save changes on the edit page (regression)', function () {
+    // Two prior bugs:
+    //   (a) custom content() put Save outside the form → submit did nothing
+    //   (b) nesting RelationManagers inside the form footer left them blank
+    //       unless we also disable lazy-mount on the manager itself.
+    // This test catches both: page must render the Bronnen heading AND the
+    // Save changes button on the same render.
+    $article = Article::factory()->create();
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->assertSeeHtml('Save changes')
+        ->assertSeeHtml('Bronnen');
+});
+
+it('still renders Bronnen heading when an article has zero sources (edge)', function () {
+    $article = Article::factory()->create();
+    expect($article->sources()->count())->toBe(0);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->assertSeeHtml('Bronnen');
+});
+
+it('blocks save when title is cleared on an existing article (edge)', function () {
+    $article = Article::factory()->create(['title' => 'Origineel']);
+
+    \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+        ->fillForm(['title' => ''])
+        ->call('save')
+        ->assertHasFormErrors(['title' => 'required']);
+
+    expect($article->fresh()->title)->toBe('Origineel');
+});
+
+it('persists each valid status value through edit save (edge)', function () {
+    $article = Article::factory()->create(['status' => 'draft']);
+
+    foreach (['inactive', 'active', 'archived', 'draft'] as $status) {
+        \Livewire\Livewire::test(EditArticle::class, ['record' => $article->getKey()])
+            ->fillForm(['status' => $status])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        expect($article->fresh()->status)->toBe($status);
+    }
+});
+
+it('redirects to the index after creating an article', function () {
+    $component = \Livewire\Livewire::test(\App\Filament\Resources\Articles\Pages\CreateArticle::class)
+        ->fillForm([
+            'title'   => 'Redirect-check',
+            'summary' => 'x',
+            'tone'    => 'Live',
+            'status'  => 'draft',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $component->assertRedirect(\App\Filament\Resources\Articles\ArticleResource::getUrl('index'));
 });

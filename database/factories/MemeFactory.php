@@ -14,9 +14,9 @@ class MemeFactory extends Factory
     {
         return [
             'article_id'  => null,
+            'editor_id'   => null,
             'title'       => fake()->sentence(4),
             'image_url'   => 'https://placekitten.com/400/300',
-            'caption'     => fake()->sentence(),
             'author'      => '@' . fake()->userName(),
             'author_name' => fake()->name(),
             'top'         => fake()->sentence(),

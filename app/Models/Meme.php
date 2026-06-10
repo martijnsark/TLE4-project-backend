@@ -13,13 +13,18 @@ class Meme extends Model
     use HasFactory;
 
     protected $fillable = [
-        'article_id', 'title', 'image_url', 'caption',
+        'article_id', 'editor_id', 'title', 'image_url',
         'author', 'author_name', 'top', 'bot', 'cat',
     ];
 
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
+    }
+
+    public function editor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'editor_id');
     }
 
     public function views(): HasMany
