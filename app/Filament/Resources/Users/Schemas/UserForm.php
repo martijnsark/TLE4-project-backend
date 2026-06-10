@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Hash;
 
 class UserForm
 {
@@ -12,22 +14,34 @@ class UserForm
     {
         return $schema->components([
             TextInput::make('username')
-                ->disabled()
-                ->hint('alleen-lezen')
-                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Identiteitsvelden kan alleen de gebruiker zelf wijzigen. Admins beheren via dit form alleen de rol.')
-                ->maxLength(50),
+                ->required()
+                ->maxLength(50)
+                ->unique(table: User::class, ignoreRecord: true)
+                ->disabled(fn (string $operation): bool => $operation === 'edit')
+                ->hint(fn (string $operation): ?string => $operation === 'edit' ? 'alleen-lezen' : null)
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Username is gekoppeld aan login + URL-slugs en kan na create niet meer worden gewijzigd.'),
 
             TextInput::make('name')
                 ->label('Naam')
-                ->disabled()
-                ->hint('alleen-lezen')
+                ->required()
                 ->maxLength(100),
 
             TextInput::make('email')
                 ->label('E-mailadres')
                 ->email()
-                ->disabled()
-                ->hint('alleen-lezen'),
+                ->required()
+                ->maxLength(255)
+                ->unique(table: User::class, ignoreRecord: true),
+
+            TextInput::make('password')
+                ->password()
+                ->revealable()
+                ->required(fn (string $operation): bool => $operation === 'create')
+                ->dehydrated(fn (?string $state): bool => filled($state))
+                ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                ->hint(fn (string $operation): ?string => $operation === 'edit' ? 'leeg laten om niet te wijzigen' : null)
+                ->minLength(8)
+                ->maxLength(255),
 
             Select::make('role')
                 ->label('Rol')
