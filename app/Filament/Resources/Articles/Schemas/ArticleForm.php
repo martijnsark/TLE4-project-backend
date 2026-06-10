@@ -74,10 +74,11 @@ class ArticleForm
             FileUpload::make('image_url')
                 ->label('Afbeelding')
                 ->hint('optioneel')
-                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: img')
+                ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'API-veld: img. Toegestane formats: JPG, PNG, WebP. Max 5 MB.')
                 ->disk('public')
                 ->directory('articles')
-                ->image()
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->maxSize(5120)
                 ->imagePreviewHeight('200')
                 ->columnSpanFull(),
 
