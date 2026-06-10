@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\TagCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,7 +21,7 @@ class ArticleResource extends JsonResource
             'body'     => $this->mapBodyParagraphs(),
             'img'      => $this->resolveImageUrl(),
             'cat'      => $this->primaryTag()?->name,
-            'tags'     => $this->tags->where('category', '!=', 'flag')->pluck('name')->values()->toArray(),
+            'tags'     => $this->tags->where('category', '!=', TagCategory::Flag)->pluck('name')->values()->toArray(),
             'tone'     => $this->tone,
             'trending' => (bool) $this->is_trending,
             'date'     => $this->published_at

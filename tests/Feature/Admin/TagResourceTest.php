@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TagCategory;
 use App\Filament\Resources\Tags\Pages\CreateTag;
 use App\Filament\Resources\Tags\Pages\EditTag;
 use App\Filament\Resources\Tags\Pages\ListTags;
@@ -28,7 +29,7 @@ it('creates a navigation tag via admin', function () {
 
     expect(Tag::where('name', 'Klimaat')->first())
         ->not->toBeNull()
-        ->and(Tag::where('name', 'Klimaat')->first()->category)->toBe('navigation');
+        ->and(Tag::where('name', 'Klimaat')->first()->category)->toBe(TagCategory::Navigation);
 });
 
 it('requires a name on create', function () {
@@ -46,7 +47,7 @@ it('updates a tag category via edit', function () {
         ->call('save')
         ->assertHasNoFormErrors();
 
-    expect($tag->fresh()->category)->toBe('flag');
+    expect($tag->fresh()->category)->toBe(TagCategory::Flag);
 });
 
 it('deletes a tag via the edit page action', function () {

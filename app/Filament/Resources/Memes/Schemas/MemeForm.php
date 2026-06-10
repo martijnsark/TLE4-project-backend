@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Memes\Schemas;
 
+use App\Enums\TagCategory;
 use App\Models\Tag;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -52,7 +53,7 @@ class MemeForm
 
             Select::make('cat')
                 ->label('Categorie')
-                ->options(fn () => Tag::where('category', 'navigation')
+                ->options(fn () => Tag::where('category', TagCategory::Navigation)
                     ->pluck('name', 'name')
                     ->mapWithKeys(fn ($label, $key) => [strtoupper($key) => $label])
                     ->all())
