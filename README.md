@@ -346,21 +346,27 @@ Example JSON bodies below use realistic sample values. For routes with path or q
 
 ### private endpoints (original user only)
 
-- `PUT /api/update-account`
-    - Required fields: `username`, `email`, `password`
-    - Optional fields: `name`
+- `PATCH /api/account`
+    - Required fields: none
+    - Optional fields: `username`, `name`, `email`, `password`, `password_confirmation`
     - Auth: required
     - Example request:
       ```json
       {
-        "username": "julia_vermeer",
+        "username": "julia_vermeer_updated",
         "name": "Julia Vermeer",
-        "email": "julia.vermeer.updated@example.com",
+        "email": "julia.vermeer.updated@example.com"
+      }
+      ```
+    - Password is optional. Only include `password` and `password_confirmation` when the user wants to change their password.
+    - Example password update request:
+      ```json
+      {
         "password": "N3wStr0ngPassw0rd!",
         "password_confirmation": "N3wStr0ngPassw0rd!"
       }
       ```
-    - Returns: the updated `user`
+    - Returns: a success `message` and the updated `user`
 - `DELETE /api/delete-account`
     - Required fields: none
     - Optional fields: none
