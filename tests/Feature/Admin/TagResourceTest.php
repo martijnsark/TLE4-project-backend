@@ -64,6 +64,25 @@ it('updates a tag category via edit', function () {
     expect($tag->fresh()->category)->toBe(TagCategory::Flag);
 });
 
+it('updates a tag icon via edit and clears it again', function () {
+    $tag = Tag::create(['name' => 'Sport', 'category' => 'navigation', 'icon' => 'trend']);
+
+    \Livewire\Livewire::test(EditTag::class, ['record' => $tag->getKey()])
+        ->assertFormSet(['icon' => 'trend'])
+        ->fillForm(['icon' => 'play'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($tag->fresh()->icon)->toBe(TagIcon::Play);
+
+    \Livewire\Livewire::test(EditTag::class, ['record' => $tag->getKey()])
+        ->fillForm(['icon' => null])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($tag->fresh()->icon)->toBeNull();
+});
+
 it('deletes a tag via the edit page action', function () {
     $tag = Tag::create(['name' => 'Tijdelijk', 'category' => 'topic']);
 
