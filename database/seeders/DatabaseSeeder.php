@@ -43,27 +43,27 @@ class DatabaseSeeder extends Seeder
 
         $tags = collect([
             // navigation tags — de 6 RN-mock categorieën
-            ['name' => 'Voor jou',   'category' => 'navigation'],
-            ['name' => 'Klimaat',    'category' => 'navigation'],
-            ['name' => 'Politiek',   'category' => 'navigation'],
-            ['name' => 'Sport',      'category' => 'navigation'],
-            ['name' => 'Tech',       'category' => 'navigation'],
-            ['name' => 'Wereld',     'category' => 'navigation'],
+            ['name' => 'Voor jou',   'category' => 'navigation', 'icon' => 'home'],
+            ['name' => 'Klimaat',    'category' => 'navigation', 'icon' => 'sparkle'],
+            ['name' => 'Politiek',   'category' => 'navigation', 'icon' => 'info'],
+            ['name' => 'Sport',      'category' => 'navigation', 'icon' => 'trend'],
+            ['name' => 'Tech',       'category' => 'navigation', 'icon' => 'play'],
+            ['name' => 'Wereld',     'category' => 'navigation', 'icon' => 'extern'],
             // topic tags
-            ['name' => 'Technologie', 'category' => 'topic'],
-            ['name' => 'Gezondheid',  'category' => 'topic'],
-            ['name' => 'Economie',    'category' => 'topic'],
-            ['name' => 'Media',       'category' => 'topic'],
-            ['name' => 'Buitenland',  'category' => 'topic'],
-            ['name' => 'Ramp',        'category' => 'topic'],
-            ['name' => 'Natuur',      'category' => 'topic'],
-            ['name' => 'Nederland',   'category' => 'topic'],
-            ['name' => 'Innovatie',   'category' => 'topic'],
-            ['name' => 'Muziek',      'category' => 'topic'],
-            ['name' => 'Kunst',       'category' => 'topic'],
+            ['name' => 'Technologie', 'category' => 'topic', 'icon' => 'play'],
+            ['name' => 'Gezondheid',  'category' => 'topic', 'icon' => 'smile'],
+            ['name' => 'Economie',    'category' => 'topic', 'icon' => 'trend'],
+            ['name' => 'Media',       'category' => 'topic', 'icon' => 'image'],
+            ['name' => 'Buitenland',  'category' => 'topic', 'icon' => 'extern'],
+            ['name' => 'Ramp',        'category' => 'topic', 'icon' => 'frown'],
+            ['name' => 'Natuur',      'category' => 'topic', 'icon' => 'sparkle'],
+            ['name' => 'Nederland',   'category' => 'topic', 'icon' => 'home'],
+            ['name' => 'Innovatie',   'category' => 'topic', 'icon' => 'sparkle'],
+            ['name' => 'Muziek',      'category' => 'topic', 'icon' => 'play'],
+            ['name' => 'Kunst',       'category' => 'topic', 'icon' => 'image'],
             // flag tags
-            ['name' => 'Goed nieuws', 'category' => 'flag'],
-            ['name' => 'Trending',    'category' => 'flag'],
+            ['name' => 'Goed nieuws', 'category' => 'flag', 'icon' => 'smile'],
+            ['name' => 'Trending',    'category' => 'flag', 'icon' => 'trend'],
         ])->map(fn ($tag) => Tag::firstOrCreate(['name' => $tag['name']], $tag));
 
         $user->interestTags()->sync($tags->whereIn('name', ['Politiek', 'Innovatie', 'Natuur'])->pluck('id'));

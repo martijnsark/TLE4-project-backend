@@ -21,7 +21,14 @@ class ArticleResource extends JsonResource
             'body'     => $this->mapBodyParagraphs(),
             'img'      => $this->resolveImageUrl(),
             'cat'      => $this->primaryTag()?->name,
-            'tags'     => $this->tags->where('category', '!=', TagCategory::Flag)->pluck('name')->values()->toArray(),
+            'tags'     => $this->tags
+                ->where('category', '!=', TagCategory::Flag)
+                ->map(fn ($tag) => [
+                    'name' => $tag->name,
+                    'icon' => $tag->icon?->value,
+                ])
+                ->values()
+                ->toArray(),
             'tone'     => $this->tone,
             'trending' => (bool) $this->is_trending,
             'date'     => $this->published_at

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TagCategory;
+use App\Enums\TagIcon;
 use App\Filament\Resources\Tags\Pages\CreateTag;
 use App\Filament\Resources\Tags\Pages\EditTag;
 use App\Filament\Resources\Tags\Pages\ListTags;
@@ -30,6 +31,19 @@ it('creates a navigation tag via admin', function () {
     expect(Tag::where('name', 'Klimaat')->first())
         ->not->toBeNull()
         ->and(Tag::where('name', 'Klimaat')->first()->category)->toBe(TagCategory::Navigation);
+});
+
+it('creates a tag with an icon via admin', function () {
+    \Livewire\Livewire::test(CreateTag::class)
+        ->fillForm([
+            'name'     => 'Sport',
+            'category' => 'navigation',
+            'icon'     => 'trend',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Tag::where('name', 'Sport')->first()->icon)->toBe(TagIcon::Trend);
 });
 
 it('requires a name on create', function () {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\TagCategory;
+use App\Enums\TagIcon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,10 +12,11 @@ class Tag extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'category'];
+    protected $fillable = ['name', 'category', 'icon'];
 
     protected $casts = [
         'category' => TagCategory::class,
+        'icon' => TagIcon::class,
     ];
 
     public function users(): BelongsToMany

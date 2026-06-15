@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Tags\Schemas;
 
 use App\Enums\TagCategory;
+use App\Enums\TagIcon;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -25,6 +26,14 @@ class TagForm
                     ->default(TagCategory::Topic->value)
                     ->native(false)
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Bepaalt waar de tag opduikt: navigation = hoofdmenu, topic = filter, flag = badge.'),
+
+                Select::make('icon')
+                    ->label('Icoon')
+                    ->options(TagIcon::options())
+                    ->searchable()
+                    ->native(false)
+                    ->placeholder('Geen icoon')
+                    ->helperText('Naam van het icoon zoals de app het rendert (impakt-rn). Optioneel.'),
             ]);
     }
 }
