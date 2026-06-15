@@ -29,9 +29,9 @@ class ReactionController extends Controller
 
         return response()->json([
             'counts' => [
-                'happy' => $reactionCounts['happy'] ?? 0,
-                'shocked' => $reactionCounts['shocked'] ?? 0,
-                'sad' => $reactionCounts['sad'] ?? 0,
+                'smile' => $reactionCounts['smile'] ?? 0,
+                'meh' => $reactionCounts['meh'] ?? 0,
+                'frown' => $reactionCounts['frown'] ?? 0,
             ],
             'my_reaction' => $myReaction,
         ]);
@@ -40,7 +40,7 @@ class ReactionController extends Controller
     private function saveReaction(Request $request, Model $reactionable): JsonResponse
     {
         $validated = $request->validate([
-            'reaction' => ['required', 'in:happy,shocked,sad'],
+            'reaction' => ['required', 'in:smile,meh,frown'],
         ]);
 
         $reaction = $reactionable->reactions()

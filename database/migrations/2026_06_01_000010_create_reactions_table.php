@@ -15,7 +15,7 @@ return new class extends Migration
 
             $table->morphs('reactionable');
 
-            $table->enum('reaction', ['happy', 'shocked', 'sad']);
+            $table->enum('reaction', ['smile', 'meh', 'frown']);
             $table->timestamps();
 
             $table->unique(['user_id', 'reactionable_id', 'reactionable_type']);
