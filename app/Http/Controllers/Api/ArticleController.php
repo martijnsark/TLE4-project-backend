@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ArticleResource;
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ArticleController extends Controller
 {
@@ -88,6 +89,7 @@ class ArticleController extends Controller
     //store an article, requires title, summary, content, image_url, tone and status, also can include published_at and tags associated with the article, only the author or admin can create an article
     public function store(Request $request)
     {
+        Gate::authorize('create', Article::class);
         $request->validate([
             'title' => 'required|string|max:255',
             'summary' => 'required|string',
@@ -142,17 +144,13 @@ class ArticleController extends Controller
     //edit an article
     public function edit(Article $article)
     {
-        if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        Gate::authorize('update', $article);
         return response()->json(['message' => 'Update article success']);
     }
     //update an article, only the author or admin can update an article, can update title, summary, content, image_url, tone, status and published_at, also can update the tags associated with the article
     public function update(Request $request, Article $article)
     {
-        if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        Gate::authorize('update', $article);
 
         $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
@@ -186,9 +184,7 @@ class ArticleController extends Controller
     //delete an article
     public function destroy(Article $article)
     {
-        if ($article->author_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized action.');
-        }
+        Gate::authorize('delete', $article);
 
         $article->delete();
 
