@@ -14,8 +14,35 @@ class MemeController extends Controller
     public function index(): JsonResponse
     {
         $memes = Meme::with('article:id,title')
+            ->withCount([
+                'reactions as smile_count' => function ($query) {
+                    $query->where('reaction', 'smile');
+                },
+                'reactions as meh_count' => function ($query) {
+                    $query->where('reaction', 'meh');
+                },
+                'reactions as frown_count' => function ($query) {
+                    $query->where('reaction', 'frown');
+                },
+            ])
             ->latest()
             ->paginate(12);
+
+        $memes->getCollection()->transform(function ($meme) {
+            $meme->reactions = [
+                'smile' => $meme->smile_count,
+                'meh' => $meme->meh_count,
+                'frown' => $meme->frown_count,
+            ];
+
+            unset(
+                $meme->smile_count,
+                $meme->meh_count,
+                $meme->frown_count
+            );
+
+            return $meme;
+        });
 
         return response()->json($memes);
     }
