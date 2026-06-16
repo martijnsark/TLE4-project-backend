@@ -35,7 +35,7 @@ class TagController extends Controller
     //tags updaten die de gebruiker heeft geselecteerd als interesse tags, gesorteerd op categorie en naam
     {
         $validated = $request->validate([
-            'tag_ids' => ['required', 'array'],
+            'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
         ]);
 
