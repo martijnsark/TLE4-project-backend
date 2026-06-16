@@ -7,6 +7,7 @@ use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\PollVote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PollController extends Controller
 {
@@ -39,6 +40,7 @@ class PollController extends Controller
     // Show a specific poll
     public function show(Poll $poll)
     {
+        Gate::authorize('view', $poll);
         return response()->json($poll);
     }
     // Show form to edit a poll
@@ -47,17 +49,30 @@ class PollController extends Controller
         return response()->json(['message' => 'Edit poll success']);
     }
     // Update a poll
-    public function update(Request $request, Poll $poll){
-        $request->validate([
-            'article_id' => 'required|integer|exists:articles,id',
-            'question' => 'required|string|max:255',
+    public function update(Request $request, PollVote $pollVote)
+    {
+        Gate::authorize('update', $pollVote);
+
+        $validated = $request->validate([
+            'poll_id' => ['sometimes', 'integer', 'exists:polls,id'],
+            'option_id' => ['sometimes', 'integer', 'exists:poll_options,id'],
         ]);
 
-        $poll->update($request->all());
+        if (isset($validated['poll_id'], $validated['option_id'])) {
+            $optionBelongsToPoll = \App\Models\PollOption::where('id', $validated['option_id'])
+                ->where('poll_id', $validated['poll_id'])
+                ->exists();
 
-        $poll->save();
+            if (! $optionBelongsToPoll) {
+                return response()->json([
+                    'message' => 'This option does not belong to this poll.',
+                ], 422);
+            }
+        }
 
-        return response()->json($poll);
+        $pollVote->update($validated);
+
+        return response()->json($pollVote->fresh());
     }
     // Delete a poll
     public function destroy(Poll $poll){
