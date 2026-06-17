@@ -922,6 +922,44 @@ redirect_stderr=true
 stdout_logfile=/var/log/laravel-queue.log
 ```
 
+### Serving the Impakt web frontend (same-origin)
+
+The React Native app also ships a **web build** (a folder of static files,
+`dist/`, produced in the frontend repo with `npm run export:web`). We serve it
+from **this same server**, so the app talks to the API same-origin via `/api`.
+
+**Why same-origin:** the VPS is only reachable from the Netherlands (geo
+restriction), so external hosts (e.g. Vercel) cannot reach `/api` (502). Hosting
+the frontend here means the browser calls `/api/...` on the same host — no CORS,
+no mixed-content, no proxy. The frontend build already targets `/api` (relative),
+so no rebuild per environment is needed.
+
+**How it works:** the webserver serves a requested path directly when the file
+exists in `public/` (e.g. `_expo/`, `assets/`), and routes everything else to
+`index.php` (Laravel). The `/` route in `routes/web.php` returns
+`public/index.html`, so the app loads at the root while `/api` and `/admin` keep
+hitting Laravel. Works on nginx (production) and Apache alike — no webserver
+config change needed.
+
+**Deploy steps:**
+
+1. The frontend team provides the built `dist/` folder. These files are **not**
+   committed to this repo.
+2. Upload the **contents** of `dist/` (not the folder itself) into `public/`:
+   - `index.html`, `_expo/`, `assets/`, `favicon.ico` (overwrites the empty one), `metadata.json`
+   - `dist/` contains no `index.php`, so Laravel's front controller stays intact.
+3. No further config needed — the `/` route in `routes/web.php` (this PR) serves `index.html`.
+
+**Verify:**
+
+| URL | Expected |
+| --- | --- |
+| `http://<host>/` | the Impakt web app |
+| `http://<host>/api/tags` | JSON from Laravel |
+| `http://<host>/admin` | Filament admin login |
+
+**Optional (nginx with server access):** instead of the `web.php` route you can let nginx serve the index directly — `index index.html index.php;` plus `location / { try_files $uri $uri/ /index.php?$query_string; }`.
+
 ## Configuration (.env)
 
 Important variables:
