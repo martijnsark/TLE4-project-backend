@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\Meme;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class MemeController extends Controller
 {
@@ -56,6 +57,7 @@ class MemeController extends Controller
     //create a meme for a specific article, requires title, image_url and optional caption
     public function store(Request $request, Article $article): JsonResponse
     {
+        Gate::authorize('create', Meme::class);
         $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'image_url' => ['required', 'url'],
@@ -77,6 +79,7 @@ class MemeController extends Controller
     //edit existing meme, can update title, image_url and caption
     public function update(Request $request, Meme $meme): JsonResponse
     {
+        Gate::authorize('update', $meme);
         $request->validate([
             'title' => ['sometimes', 'string', 'max:255'],
             'image_url' => ['sometimes', 'url'],
@@ -98,6 +101,7 @@ class MemeController extends Controller
     //delete a meme
     public function destroy(Meme $meme): JsonResponse
     {
+        Gate::authorize('delete', $meme);
         $meme->delete();
 
         return response()->json([

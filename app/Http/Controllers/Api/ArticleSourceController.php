@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\Source;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ArticleSourceController extends Controller
 {
@@ -23,6 +24,7 @@ class ArticleSourceController extends Controller
     //link a source to an article, requires source_id, source_url and optional is_primary
     public function store(Request $request, Article $article): JsonResponse
     {
+        Gate::authorize('create-article-source');
         $validated = $request->validate([
             'source_id' => ['required', 'integer', 'exists:sources,id'],
             'source_url' => ['required', 'url'],
@@ -53,6 +55,7 @@ class ArticleSourceController extends Controller
     //update the pivot data for a source linked to an article, can update source_url and is_primary
     public function update(Request $request, Article $article, Source $source): JsonResponse
     {
+        Gate::authorize('update-article-source');
         if (! $article->sources()->where('sources.id', $source->id)->exists()) {
             return response()->json([
                 'message' => 'This source is not linked to this article.',
@@ -77,6 +80,7 @@ class ArticleSourceController extends Controller
     //unlink a source from an article
     public function destroy(Article $article, Source $source): JsonResponse
     {
+        Gate::authorize('delete-article-source');
         if (! $article->sources()->where('sources.id', $source->id)->exists()) {
             return response()->json([
                 'message' => 'This source is not linked to this article.',

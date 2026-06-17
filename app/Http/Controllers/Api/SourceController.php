@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Source;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class SourceController extends Controller
 {
@@ -19,6 +20,7 @@ class SourceController extends Controller
     //get single source
     public function store(Request $request): JsonResponse
     {
+        Gate::authorize('create', Source::class);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'url' => ['required', 'url'],
@@ -35,6 +37,7 @@ class SourceController extends Controller
     //edit existing source, can update name, url and reliability_score
     public function update(Request $request, Source $source): JsonResponse
     {
+        Gate::authorize('update', $source);
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'url' => ['sometimes', 'url'],
@@ -51,6 +54,7 @@ class SourceController extends Controller
     //delete a source, also deletes all links to articles but does not delete the articles themselves
     public function destroy(Source $source): JsonResponse
     {
+        Gate::authorize('delete', $source);
         $source->delete();
 
         return response()->json([
