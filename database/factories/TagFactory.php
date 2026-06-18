@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\TagCategory;
+use App\Enums\TagIcon;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -16,6 +17,7 @@ class TagFactory extends Factory
         return [
             'name'     => fake()->unique()->word(),
             'category' => fake()->randomElement(TagCategory::cases())->value,
+            'icon'     => fake()->randomElement(TagIcon::cases())->value,
         ];
     }
 }

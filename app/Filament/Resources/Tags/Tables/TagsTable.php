@@ -18,6 +18,10 @@ class TagsTable
                     ->searchable(),
                 TextColumn::make('category')
                     ->searchable(),
+                TextColumn::make('icon')
+                    ->label('Icoon')
+                    ->placeholder('—')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
