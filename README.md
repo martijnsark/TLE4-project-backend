@@ -24,6 +24,7 @@ The following Mermaid ER diagram summarizes the main entities and relationships 
 ```mermaid
 erDiagram
     USERS o|--o{ ARTICLES : authors
+    USERS o|--o{ MEMES : edits
     USERS ||--o{ REACTIONS : makes
     USERS ||--o{ POLL_VOTES : votes
     USERS o|--o{ ARTICLE_VIEWS : views
@@ -37,19 +38,21 @@ erDiagram
     TAGS ||--o{ USER_TAGS : tagged_by
     ARTICLES ||--o{ ARTICLE_TAGS : tagged_with
     TAGS ||--o{ ARTICLE_TAGS : tags
+
     ARTICLES ||--o{ ARTICLE_SOURCES : cites
     SOURCES ||--o{ ARTICLE_SOURCES : referenced_by
 
     ARTICLES ||--o| CALL_TO_ACTIONS : has
-    ARTICLES ||--o{ REACTIONS : "receives polymorphic"
     ARTICLES ||--o{ POLLS : contains
     ARTICLES o|--o{ MEMES : generates
     ARTICLES ||--o{ ARTICLE_VIEWS : viewed_in
     ARTICLES ||--o{ SAVED_ARTICLES : saved_in
 
+    ARTICLES ||--o{ REACTIONS : "receives polymorphic"
+    MEMES ||--o{ REACTIONS : "receives polymorphic"
+
     MEMES ||--o{ MEME_VIEWS : viewed_in
     MEMES ||--o{ SAVED_MEMES : saved_in
-    MEMES ||--o{ REACTIONS : "receives polymorphic"
 
     POLLS ||--o{ POLL_OPTIONS : options
     POLLS ||--o{ POLL_VOTES : receives
@@ -69,6 +72,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     TAGS {
       integer id PK
       string name
@@ -76,13 +80,13 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     ARTICLES {
       integer id PK
       string title
       text summary
       text content
       string image_url
-      string original_url
       string tone
       string status
       integer author_id FK
@@ -90,6 +94,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     CALL_TO_ACTIONS {
       integer id PK
       integer article_id FK
@@ -100,6 +105,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     SOURCES {
       integer id PK
       string name
@@ -108,6 +114,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     ARTICLE_TAGS {
       integer id PK
       integer article_id FK
@@ -115,6 +122,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     ARTICLE_SOURCES {
       integer id PK
       integer article_id FK
@@ -124,6 +132,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     SAVED_ARTICLES {
       integer id PK
       integer user_id FK
@@ -132,6 +141,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     REACTIONS {
       integer id PK
       integer user_id FK
@@ -141,6 +151,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     POLLS {
       integer id PK
       integer article_id FK
@@ -148,6 +159,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     POLL_OPTIONS {
       integer id PK
       integer poll_id FK
@@ -155,22 +167,33 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     POLL_VOTES {
       integer id PK
       integer poll_id FK
       integer option_id FK
       integer user_id FK
       datetime voted_at
-    }
-    MEMES {
-      integer id PK
-      integer article_id FK
-      string title
-      string image_url
-      text caption
       datetime created_at
       datetime updated_at
     }
+
+    MEMES {
+      integer id PK
+      integer article_id FK
+      integer editor_id FK
+      string title
+      string image_url
+      text caption
+      string cat
+      text top
+      text bot
+      string author
+      string author_name
+      datetime created_at
+      datetime updated_at
+    }
+
     SAVED_MEMES {
       integer id PK
       integer user_id FK
@@ -179,20 +202,27 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     ARTICLE_VIEWS {
       integer id PK
       integer user_id FK
       integer article_id FK
       datetime viewed_at
       integer reading_time_seconds
+      datetime created_at
+      datetime updated_at
     }
+
     MEME_VIEWS {
       integer id PK
       integer user_id FK
       integer meme_id FK
       datetime viewed_at
       integer viewing_time_seconds
+      datetime created_at
+      datetime updated_at
     }
+
     GENERATED_CONTENTS {
       integer id PK
       integer admin_id FK
@@ -203,6 +233,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     CONTENT_REVIEWS {
       integer id PK
       integer generated_content_id FK
@@ -213,6 +244,7 @@ erDiagram
       datetime created_at
       datetime updated_at
     }
+
     USER_TAGS {
       integer id PK
       integer user_id FK
@@ -245,6 +277,7 @@ erDiagram
       datetime updated_at
     }
 ```
+
 
 ## Frontend Implementation (Routes and fields)
 
@@ -1214,7 +1247,67 @@ composer test
 ./vendor/bin/pest
 ```
 
-## Edge Cases 
+## Edge Cases
+
+* **Nginx past wijzigingen niet automatisch toe**
+
+  Wanneer de Nginx configuratie wordt aangepast, worden deze wijzigingen niet direct actief. Herlaad Nginx na het aanpassen van de configuratie:
+
+  ```bash
+  sudo systemctl reload nginx
+  ```
+
+* **Foto's/uploads zijn niet bereikbaar zonder storage link**
+
+  Wanneer Laravel bestanden opslaat in `storage/app/public`, zijn deze pas bereikbaar via `/storage/...` als de storage link bestaat.
+
+  ```bash
+  php artisan storage:link
+  ```
+
+* **Andere projectmap live zetten**
+
+  Wanneer een andere deploy folder actief moet worden, moet de Nginx configuratie worden aangepast.
+
+  Open de configuratie:
+
+  ```bash
+  sudo nano /etc/nginx/sites-enabled/v1-impakt
+  ```
+
+  Pas de `root` aan naar de juiste folder:
+
+  ```nginx
+  server {
+      listen 80;
+      server_name _;
+
+      root /home/ubuntu-1111973/{folder-name}/public;
+      index index.php index.html;
+
+      location / {
+          try_files $uri $uri/ /index.php?$query_string;
+      }
+
+      location ~ \.php$ {
+          include snippets/fastcgi-php.conf;
+          fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+      }
+
+      location ~ /\. {
+          deny all;
+      }
+  }
+  ```
+
+  Vervang `{folder-name}` met de map die live moet draaien.
+
+  Herlaad daarna Nginx:
+
+  ```bash
+  sudo systemctl reload nginx
+  ```
+
 
 
 
