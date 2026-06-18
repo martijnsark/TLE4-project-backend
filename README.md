@@ -897,30 +897,262 @@ For queue workers (local dev):
 php artisan queue:work --tries=3
 ```
 
-## Deployment
+# deployment
 
-General recommendations for production deployment:
+## General recommendations for production deployment:
 
-- Use a process manager (Supervisor) to run `php artisan queue:work` and `php artisan horizon` if enabled.
-- Serve the app behind Nginx with PHP-FPM. Example Nginx location root: `public/`.
-- Use environment variables (secure `.env`) and do not commit secrets.
-- Run `php artisan migrate --force` as part of deploy.
-- Use `php artisan config:cache`, `route:cache`, and `view:cache` for performance.
-- Set up scheduled tasks (`php artisan schedule:run`) via cron.
+Before deploying to production:
 
-An example minimal supervisor config for queue workers:
+- Update `.env` file with production values.
+- Set application environment to production.
+- Disable debug mode.
 
-```ini
-[program:tle4-queue]
-process_name=%(program_name)s_%(process_num)02d
-command=php /path/to/app/artisan queue:work --sleep=3 --tries=3
-autostart=true
-autorestart=true
-user=www-data
-numprocs=1
-redirect_stderr=true
-stdout_logfile=/var/log/laravel-queue.log
+Example:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
 ```
+
+- Configure production database credentials.
+- Configure mail, storage, queue, and third-party services.
+
+---
+
+# Deployment Steps (Ubuntu Server)
+
+## 1. Upload Project Files
+
+Install and open **FileZilla**.
+
+Connect to the Ubuntu server using SFTP.
+
+Create a deployment folder:
+
+```bash
+/home/<username>/v1
+```
+
+Upload the project files into the `v1` folder.
+
+Do **not** upload:
+
+- `vendor/`
+- `composer.lock`
+
+Upload:
+
+```
+app/
+bootstrap/
+config/
+database/
+public/
+routes/
+storage/
+tests/
+.env
+artisan
+composer.json
+```
+
+---
+
+## 2. Connect Using SSH
+
+Connect to the server:
+
+```bash
+ssh username@server-ip
+```
+
+Navigate to the project:
+
+```bash
+cd /home/<username>/v1
+```
+
+---
+
+## 3. Install Required Packages
+
+Install Nginx:
+
+```bash
+sudo apt install nginx -y
+```
+
+Install PHP 8.3:
+
+```bash
+sudo apt install php8.3 php8.3-fpm php8.3-mysql php8.3-mbstring php8.3-xml php8.3-curl php8.3-zip unzip -y
+```
+
+Check PHP version:
+
+```bash
+php -v
+```
+
+---
+
+# 4. Configure Nginx
+
+Create a new Nginx configuration:
+
+```bash
+sudo nano /etc/nginx/sites-available/v1
+```
+
+Add:
+
+```nginx
+server {
+    listen 80;
+
+    server_name your-domain.com;
+
+    root /home/<username>/v1/public;
+
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    }
+
+    location ~ /\. {
+        deny all;
+    }
+}
+```
+
+Enable the configuration:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/v1 /etc/nginx/sites-enabled/
+```
+
+Remove the default configuration:
+
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+Test Nginx:
+
+```bash
+sudo nginx -t
+```
+
+Restart Nginx:
+
+```bash
+sudo systemctl restart nginx
+```
+
+---
+
+# 5. Install Composer Dependencies
+
+Inside the project folder:
+
+```bash
+cd /home/<username>/v1
+```
+
+Install production dependencies:
+
+```bash
+composer update
+```
+
+---
+
+# 6. Configure Laravel
+
+Create Laravel cache:
+
+```bash
+php artisan config:cache
+
+php artisan route:cache
+
+php artisan view:cache
+```
+
+Run database migrations and seed:
+
+```bash
+php artisan migrate --force --seed
+```
+
+Create storage link:
+
+```bash
+php artisan storage:link
+```
+
+---
+
+# 7. Fix Folder Permissions
+
+Set correct permissions:
+
+```bash
+sudo chown -R www-data:www-data storage bootstrap/cache
+```
+
+```bash
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+---
+
+# 8. Updating the Server
+
+When deploying new changes:
+
+Navigate to the project:
+
+```bash
+cd /home/<username>/v1
+```
+
+Update dependencies:
+
+```bash
+composer update
+```
+
+Clear Laravel cache:
+
+```bash
+php artisan optimize:clear
+```
+
+Rebuild Laravel cache:
+
+```bash
+php artisan optimize
+```
+
+Run migrations:
+
+```bash
+php artisan migrate --force
+```
+
+Restart service:
+
+```bash
+sudo systemctl reload nginx
+```
+
 
 ### Serving the Impakt web frontend (same-origin)
 
